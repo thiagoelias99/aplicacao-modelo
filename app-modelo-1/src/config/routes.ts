@@ -1,4 +1,4 @@
-import { ArrowLeftRightIcon, HouseIcon, LucideIcon, UsersIcon } from "lucide-react"
+import { HouseIcon, LucideIcon, UsersIcon } from "lucide-react"
 
 type Route = {
   title: string
@@ -16,9 +16,4 @@ export const routes: Route[] = [
     url: "/app/usuarios",
     icon: UsersIcon
   },
-  {
-    title: "Transações",
-    url: "/app/transacoes",
-    icon: ArrowLeftRightIcon,
-  }
 ]

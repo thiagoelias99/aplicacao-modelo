@@ -15,6 +15,7 @@ export default function LoginPage() {
     <div className="flex flex-col w-full justify-center items-center gap-6">
       <Card className="flex flex-col">
         <CardHeader className="gap-2">
+          <Image src="/app-logo.svg" alt="Logo" width={150} height={50} className="self-center py-4" />
           <CardTitle className="text-2xl">Bem vindo à aplicação modelo </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -24,7 +25,7 @@ export default function LoginPage() {
         </CardContent>
 
         <CardFooter className="flex-col gap-16 justify-center">
-          <p className="text-center text-sm text-muted-foreground">Ao continuar você concorda com nossa <Link href="/cadastro"><b>Política de Privacidade</b></Link></p>
+          <p className="text-center text-sm text-muted-foreground">Ao continuar você concorda com nossa <Link href="/politica-de-privacidade"><b className="text-primary">Política de Privacidade</b></Link></p>
           <div className='w-full mt-2 flex justify-center items-center gap-2 text-muted-foreground'>
             <p>Login gerenciado por</p>
             <a href='https://kinde.com/' target='_blank'>
