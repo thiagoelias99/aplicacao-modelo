@@ -38,7 +38,7 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
       <AppSidebar />
       <div className='w-full'>
         <AppHeader />
-        <main className='p-4'>
+        <main>
           {children}
         </main>
       </div>
