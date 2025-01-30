@@ -11,7 +11,7 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
   const { getUser } = getKindeServerSession()
   const user = await getUser()
 
-  if (!user) {
+  if (!user?.id || !user?.email) {
     redirect('/app/entrar')
   }
 
@@ -28,7 +28,7 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
       imageUrl: user.picture || '',
     },
     where: {
-      id: user.id
+      email: user.email
     }
   })
 
