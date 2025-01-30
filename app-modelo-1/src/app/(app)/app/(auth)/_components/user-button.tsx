@@ -23,10 +23,10 @@ export default async function UserButton() {
         <p className='ml-1'>{user?.givenName} {user?.familyName}</p>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link href='/app/perfil'>Perfil</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <LogoutLink>Sair</LogoutLink>
         </DropdownMenuItem>
       </DropdownMenuContent>
