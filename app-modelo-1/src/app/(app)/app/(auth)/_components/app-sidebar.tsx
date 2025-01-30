@@ -5,7 +5,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/sidebar"
 import { useRouter, usePathname } from "next/navigation"
 import { routes } from "@/config/routes"
+import Image from "next/image"
 
 export default function AppSidebar() {
-  const { setOpenMobile } = useSidebar()
+  const { setOpenMobile, open } = useSidebar()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -27,9 +28,14 @@ export default function AppSidebar() {
 
   return (
     <Sidebar collapsible='icon'>
+      {open && (
+        <SidebarHeader>
+          <Image src="/app-logo.svg" alt="Logo" width={150} height={50} className="self-center py-4" />
+          {/* <h1>{process.env.NEXT_PUBLIC_APP_NAME}</h1> */}
+        </SidebarHeader>
+      )}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{process.env.NEXT_PUBLIC_APP_NAME}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {routes.map((item) => (

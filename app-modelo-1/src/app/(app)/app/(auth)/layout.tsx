@@ -24,9 +24,7 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
       role: Role.USER
     },
     update: {
-      email: user.email || '',
-      familyName: user.family_name || '',
-      givenName: user.given_name || '',
+
     },
     where: {
       id: user.id

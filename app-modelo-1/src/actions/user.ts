@@ -2,8 +2,53 @@
 
 import { prismaClient } from "@/lib/prisma"
 import { withRole } from "@/lib/withRole"
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 import { Prisma } from "@prisma/client"
 import { revalidatePath } from "next/cache"
+
+export async function getCurrentUserAction() {
+  const { getUser } = getKindeServerSession()
+  const id = (await getUser()).id
+
+  if (!id) {
+    throw new Error("Not Found")
+  }
+
+  return prismaClient.user.findUnique({
+    where: { id },
+  })
+}
+
+export async function updateCurrentUserAction(data: Prisma.UserUpdateInput) {
+  const { getUser } = getKindeServerSession()
+  const id = (await getUser()).id
+
+  if (!id) {
+    throw new Error("Not Found")
+  }
+
+  const updatedUser = await prismaClient.user.update({
+    where: { id },
+    data,
+  })
+
+  revalidatePath("/app")
+
+  return updatedUser
+}
+
+export async function deleteAccountAction() {
+  const { getUser } = getKindeServerSession()
+  const id = (await getUser()).id
+
+  if (!id) {
+    throw new Error("Not Found")
+  }
+
+  await prismaClient.user.delete({
+    where: { id },
+  })
+}
 
 export async function updateUserAction(data: Prisma.UserUpdateInput, id: string) {
   const auth = await withRole(["ADMIN", "MANAGER"])
