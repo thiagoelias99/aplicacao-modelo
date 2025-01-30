@@ -4,14 +4,34 @@ import { redirect } from "next/navigation"
 import React, { PropsWithChildren } from 'react'
 import AppSidebar from "./_components/app-sidebar"
 import AppHeader from "./_components/app-header"
+import { prismaClient } from "@/lib/prisma"
+import { Role } from "@prisma/client"
 
 export default async function AuthLayout({ children }: PropsWithChildren) {
-  const { isAuthenticated } = getKindeServerSession()
-  const isUserAuthenticated = await isAuthenticated()
+  const { getUser } = getKindeServerSession()
+  const user = await getUser()
 
-  if (!isUserAuthenticated) {
+  if (!user) {
     redirect('/app/entrar')
   }
+
+  await prismaClient.user.upsert({
+    create: {
+      id: user.id,
+      email: user.email || '',
+      familyName: user.family_name || '',
+      givenName: user.given_name || '',
+      role: Role.USER
+    },
+    update: {
+      email: user.email || '',
+      familyName: user.family_name || '',
+      givenName: user.given_name || '',
+    },
+    where: {
+      id: user.id
+    }
+  })
 
   return (
     <SidebarProvider className='flex flow-row w-full' defaultOpen={false}>
