@@ -23,17 +23,18 @@ const formSchema = z.object({
 
 interface Props extends ComponentProps<'div'> {
   user: User | null | undefined
+  allowed: boolean
   onSuccess?: () => void
   onError?: () => void
 }
 
-export default function EditUserForm({ user, onSuccess, onError, className, ...rest }: Props) {
+export default function EditUserForm({ user, allowed, onSuccess, onError, className, ...rest }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       givenName: user?.givenName,
-      familyName: user?.familyName,
-      email: user?.email,
+      familyName: allowed ? user?.familyName : "*******",
+      email: allowed ? user?.email : "*******",
       role: user?.role,
     },
   })
@@ -122,9 +123,10 @@ export default function EditUserForm({ user, onSuccess, onError, className, ...r
             )}
           />
           <Button
+            disabled={!allowed}
             isLoading={form.formState.isSubmitting}
             type="submit"
-          >Salvar</Button>
+          >Salvar {!allowed && "(sem permissão)"}</Button>
         </form>
       </Form>
     </div>

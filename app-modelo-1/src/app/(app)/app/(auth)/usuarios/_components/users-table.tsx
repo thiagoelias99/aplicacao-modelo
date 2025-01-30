@@ -27,11 +27,13 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import EditUserForm from "./edit-user-form"
 import { useToast } from "@/hooks/use-toast"
 import { deleteUserAction } from "@/actions/user"
+import { useRole } from "@/hooks/use-role"
 
 function getColumns(
   setSelectedUser: (user: User) => void,
   setIsDialogOpen: (isOpen: boolean) => void,
-  setIsSheetOpen: (isOpen: boolean) => void
+  setIsSheetOpen: (isOpen: boolean) => void,
+  allowed: boolean
 ): ColumnDef<User>[] {
   return [
     {
@@ -41,11 +43,12 @@ function getColumns(
     {
       accessorKey: "familyName",
       header: "Sobrenome",
+      cell: (row) => <p className="text-start">{allowed ? row.getValue() as string : "*****"}</p>
     },
     {
       accessorKey: "email",
       header: () => <p className="text-center">Email</p>,
-      cell: (row) => <p className="text-center">{row.getValue() as string}</p>
+      cell: (row) => <p className="text-center">{allowed ? row.getValue() as string : "*****"}</p>
     },
     {
       accessorKey: "role",
@@ -90,6 +93,7 @@ export default function UsersTable({ data, className, ...rest }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const { toast } = useToast()
+  const { allowed } = useRole(["ADMIN", "MANAGER"])
 
   async function handleDeleteUser() {
     try {
@@ -109,10 +113,15 @@ export default function UsersTable({ data, className, ...rest }: Props) {
   }
 
   return (
-    <div className={cn("container mx-auto py-10", className)} {...rest}>
+    <div className={cn("container mx-auto p-1 mt-4 bg-card rounded-lg", className)} {...rest}>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DataTable columns={getColumns(setSelectedUser, setIsDialogOpen, setIsSheetOpen)} data={data} />
+          <DataTable columns={getColumns(
+            setSelectedUser,
+            setIsDialogOpen,
+            setIsSheetOpen,
+            allowed
+          )} data={data} />
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Excluir Usuário {selectedUser?.givenName} {selectedUser?.familyName}?</AlertDialogTitle>
@@ -136,6 +145,7 @@ export default function UsersTable({ data, className, ...rest }: Props) {
           </SheetHeader>
           <EditUserForm
             user={selectedUser}
+            allowed={allowed}
             onSuccess={() => {
               setIsSheetOpen(false)
               toast({ title: 'Usuário atualizado com sucesso' })

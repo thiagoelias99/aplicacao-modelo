@@ -6,6 +6,12 @@ import { Prisma } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
 export async function updateUserAction(data: Prisma.UserUpdateInput, id: string) {
+  const auth = await withRole(["ADMIN", "MANAGER"])
+
+  if (!auth) {
+    throw new Error("Unauthorized")
+  }
+
   const updatedUser = await prismaClient.user.update({
     where: { id },
     data,
