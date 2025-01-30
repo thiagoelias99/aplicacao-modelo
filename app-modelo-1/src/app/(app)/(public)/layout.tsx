@@ -16,7 +16,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
       {children}
       <footer className="w-full bg-primary">
         <div className="max-w-screen-xl mx-auto py-4 px-4 sm:px-10 flex justify-between items-center">
-          <p className="text-sm text-primary-foreground text-center pt-8">© Todos os Direitos Reservados 2025 – Criado por <b>Thiago Elias</b></p>
+          <p className="text-sm text-primary-foreground text-center pt-8 sm:text-center w-full">© Todos os Direitos Reservados 2025 – Criado por <b>Thiago Elias</b></p>
         </div>
       </footer>
     </div>

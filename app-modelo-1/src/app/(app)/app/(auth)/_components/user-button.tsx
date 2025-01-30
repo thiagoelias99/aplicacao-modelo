@@ -17,7 +17,7 @@ export default async function UserButton() {
     <DropdownMenu>
       <DropdownMenuTrigger className='flex gap-1 justify-end items-center'>
         <Avatar className='w-8 h-8'>
-          <AvatarImage src={undefined} />
+          <AvatarImage src={user?.imageUrl || undefined} />
           <AvatarFallback>{user?.givenName?.substring(0, 2)}</AvatarFallback>
         </Avatar>
         <p className='ml-1'>{user?.givenName} {user?.familyName}</p>

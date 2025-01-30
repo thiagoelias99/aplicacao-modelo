@@ -21,10 +21,11 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
       email: user.email || '',
       familyName: user.family_name || '',
       givenName: user.given_name || '',
-      role: Role.USER
+      role: Role.USER,
+      imageUrl: user.picture || '',
     },
     update: {
-
+      imageUrl: user.picture || '',
     },
     where: {
       id: user.id

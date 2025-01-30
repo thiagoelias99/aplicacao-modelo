@@ -1,6 +1,7 @@
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import UserButton from "./user-button"
 import Image from "next/image"
+import { ToggleThemeButton } from "@/components/ui/toggle-theme"
 
 export default function AppHeader() {
   return (
@@ -10,7 +11,10 @@ export default function AppHeader() {
         <Image src="/app-logo.svg" alt="Logo" width={100} height={36} className="self-center" />
         {/* <h1>{process.env.NEXT_PUBLIC_APP_NAME}</h1> */}
       </div>
-      <UserButton />
+      <div className="flex gap-3 items-center">
+        <ToggleThemeButton />
+        <UserButton />
+      </div>
     </header>
   )
 }

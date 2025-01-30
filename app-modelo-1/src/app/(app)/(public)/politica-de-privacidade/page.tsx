@@ -40,7 +40,7 @@ export default function PrivacyPage() {
 
 
   return (
-    <div className="w-full px-4 py-8 sm:px-10 sm:py-16 flex flex-col items-start justify-start">
+    <div className="w-full max-w-screen-lg mx-auto px-4 py-8 sm:px-10 sm:py-16 flex flex-col items-start justify-start">
       <div className="w-full space-y-3">
         <h1 className="w-full text-3xl font-semibold text-center text-primary">{process.env.NEXT_PUBLIC_APP_NAME}</h1>
         <h2 className="w-full text-2xl font-medium text-center text-primary uppercase">Política de Privacidade</h2>
