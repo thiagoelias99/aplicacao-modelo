@@ -8,10 +8,10 @@ import { revalidatePath } from "next/cache"
 
 export async function getCurrentUserAction() {
   const { getUser } = getKindeServerSession()
-  const id = (await getUser()).id
+  const id = (await getUser())?.id
 
   if (!id) {
-    throw new Error("Not Found")
+    return null
   }
 
   return prismaClient.user.findUnique({
@@ -21,10 +21,10 @@ export async function getCurrentUserAction() {
 
 export async function updateCurrentUserAction(data: Prisma.UserUpdateInput) {
   const { getUser } = getKindeServerSession()
-  const id = (await getUser()).id
+  const id = (await getUser())?.id
 
   if (!id) {
-    throw new Error("Not Found")
+    return null
   }
 
   const updatedUser = await prismaClient.user.update({
@@ -39,7 +39,7 @@ export async function updateCurrentUserAction(data: Prisma.UserUpdateInput) {
 
 export async function deleteAccountAction() {
   const { getUser } = getKindeServerSession()
-  const id = (await getUser()).id
+  const id = (await getUser())?.id
 
   if (!id) {
     throw new Error("Not Found")
