@@ -22,10 +22,10 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
       familyName: user.family_name || '',
       givenName: user.given_name || '',
       role: Role.USER,
-      imageUrl: user.picture || '',
+      imageUrl: user.picture || null,
     },
     update: {
-      imageUrl: user.picture || '',
+      imageUrl: user.picture || null,
     },
     where: {
       email: user.email
