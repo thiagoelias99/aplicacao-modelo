@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import CookiesNotification from "@/components/cookies-notification"
+import { setAdminEmails } from "@/actions/admin"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +20,14 @@ export const metadata: Metadata = {
   description: "Aplicação modelo criado por Thiago Elias em Next.js",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+
+  await setAdminEmails()
+
   return (
     <html lang="pt-BR">
       <body
