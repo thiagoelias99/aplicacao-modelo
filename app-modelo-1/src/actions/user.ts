@@ -1,9 +1,9 @@
 "use server"
 
+import { getAppAuth } from "@/auth/get-app-auth"
 import { withRole } from "@/lib/withRole"
 import { ERole, IUser } from "@/models/user"
 import { userRepository } from "@/repository/repositories"
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
 import { revalidatePath } from "next/cache"
 import { randomUUID } from 'node:crypto'
 
@@ -14,25 +14,22 @@ export async function saveUserAction(data: Partial<IUser>) {
 }
 
 export async function getCurrentUserAction() {
-  const { getUser } = getKindeServerSession()
-  const email = (await getUser())?.email
-
-  if (!email) {
+  const auth = await getAppAuth()
+  if (!auth.authenticated || !auth.user) {
     return null
   }
-
+  const email = auth.user.email
   const user = await userRepository.getUserByEmail(email)
 
   return user
 }
 
 export async function updateCurrentUserAction(data: Partial<IUser>) {
-  const { getUser } = getKindeServerSession()
-  const email = (await getUser())?.email
-
-  if (!email) {
+  const auth = await getAppAuth()
+  if (!auth.authenticated || !auth.user) {
     return null
   }
+  const email = auth.user.email
 
   const updatedUser = await userRepository.saveUser({ email, ...data })
 
@@ -42,12 +39,11 @@ export async function updateCurrentUserAction(data: Partial<IUser>) {
 }
 
 export async function deleteAccountAction() {
-  const { getUser } = getKindeServerSession()
-  const email = (await getUser())?.email
-
-  if (!email) {
-    throw new Error("Not Found")
+  const auth = await getAppAuth()
+  if (!auth.authenticated || !auth.user) {
+    return null
   }
+  const email = auth.user.email
 
   await userRepository.deleteUserAccount({ email })
 
