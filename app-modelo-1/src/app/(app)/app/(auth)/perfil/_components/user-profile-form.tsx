@@ -3,15 +3,14 @@
 import { z } from "@/lib/pt-zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
-import { Role, User } from "@prisma/client"
 import React, { ComponentProps } from 'react'
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { RoleEnumMapper } from "@/lib/enum-utils"
 import { updateCurrentUserAction } from "@/actions/user"
 import { useToast } from "@/hooks/use-toast"
+import { ERole, ERoleEnumMapper, IUser } from "@/models/user"
 
 const formSchema = z.object({
   givenName: z.string().nonempty(),
@@ -20,7 +19,7 @@ const formSchema = z.object({
 })
 
 interface Props extends ComponentProps<'div'> {
-  user: User | null | undefined
+  user: IUser | null | undefined
   onSuccess?: () => void
   onError?: () => void
 }
@@ -97,7 +96,7 @@ export default function UserProfileForm({ user, className, ...rest }: Props) {
           />
 
           <div>
-            <FormLabel>Permissão: {RoleEnumMapper[user?.role as Role].label}</FormLabel>
+            <FormLabel>Permissão: {ERoleEnumMapper[user?.role as ERole].label}</FormLabel>
           </div>
 
           <Button

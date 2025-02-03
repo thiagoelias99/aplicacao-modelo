@@ -1,29 +1,12 @@
 "use server"
 
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
-import { Role } from "@prisma/client"
-import { prismaClient } from "./prisma"
+import { getCurrentUserAction } from "@/actions/user"
+import { ERole } from "@/models/user"
 
-export async function withRole(requiredRole: Role[]): Promise<boolean> {
-  const { getUser } = await getKindeServerSession()
-  const user = await getUser()
-
+export async function withRole(requiredRole: ERole[]): Promise<boolean> {
+  const user = await getCurrentUserAction()
   if (user === null) {
     return false
   }
-
-  const userRoles = await prismaClient.user.findUnique({
-    where: {
-      id: user.id
-    },
-    select: {
-      role: true
-    }
-  })
-
-  if (userRoles === null) {
-    return false
-  }
-
-  return requiredRole.includes(userRoles.role)
+  return requiredRole.includes(user.role)
 }

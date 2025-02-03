@@ -18,16 +18,10 @@ model User {
   givenName  String   @map("given_name")
   familyName String   @map("family_name")
   email      String   @unique
-  role       Role
+  role       String
   imageUrl   String?  @map("image_url")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("users")
-}
-
-enum Role {
-  ADMIN
-  MANAGER
-  USER
 }

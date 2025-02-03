@@ -4,32 +4,23 @@ import { redirect } from "next/navigation"
 import React, { PropsWithChildren } from 'react'
 import AppSidebar from "./_components/app-sidebar"
 import AppHeader from "./_components/app-header"
-import { prismaClient } from "@/lib/prisma"
-import { Role } from "@prisma/client"
+import { ERole } from "@/models/user"
+import { saveUserAction } from "@/actions/user"
 
 export default async function AuthLayout({ children }: PropsWithChildren) {
   const { getUser } = getKindeServerSession()
   const user = await getUser()
 
-  if (!user?.id || !user?.email) {
+  if (!user?.email) {
     redirect('/app/entrar')
   }
 
-  await prismaClient.user.upsert({
-    create: {
-      id: user.id,
-      email: user.email || '',
-      familyName: user.family_name || '',
-      givenName: user.given_name || '',
-      role: Role.USER,
-      imageUrl: user.picture || null,
-    },
-    update: {
-      imageUrl: user.picture || null,
-    },
-    where: {
-      email: user.email
-    }
+  await saveUserAction({
+    email: user.email || '',
+    familyName: user.family_name || '',
+    givenName: user.given_name || '',
+    role: ERole.USER,
+    imageUrl: user.picture || undefined,
   })
 
   return (

@@ -1,36 +1,40 @@
 "use server"
 
-import { prismaClient } from "@/lib/prisma"
 import { withRole } from "@/lib/withRole"
+import { ERole, IUser } from "@/models/user"
+import { userRepository } from "@/repository/repositories"
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server"
-import { Prisma } from "@prisma/client"
 import { revalidatePath } from "next/cache"
+import { randomUUID } from 'node:crypto'
+
+export async function saveUserAction(data: Partial<IUser>) {
+  const id = data.id || randomUUID()
+
+  await userRepository.saveUser({ id, ...data })
+}
 
 export async function getCurrentUserAction() {
   const { getUser } = getKindeServerSession()
-  const id = (await getUser())?.id
+  const email = (await getUser())?.email
 
-  if (!id) {
+  if (!email) {
     return null
   }
 
-  return prismaClient.user.findUnique({
-    where: { id },
-  })
+  const user = await userRepository.getUserByEmail(email)
+
+  return user
 }
 
-export async function updateCurrentUserAction(data: Prisma.UserUpdateInput) {
+export async function updateCurrentUserAction(data: Partial<IUser>) {
   const { getUser } = getKindeServerSession()
-  const id = (await getUser())?.id
+  const email = (await getUser())?.email
 
-  if (!id) {
+  if (!email) {
     return null
   }
 
-  const updatedUser = await prismaClient.user.update({
-    where: { id },
-    data,
-  })
+  const updatedUser = await userRepository.saveUser({ email, ...data })
 
   revalidatePath("/app")
 
@@ -39,43 +43,50 @@ export async function updateCurrentUserAction(data: Prisma.UserUpdateInput) {
 
 export async function deleteAccountAction() {
   const { getUser } = getKindeServerSession()
-  const id = (await getUser())?.id
+  const email = (await getUser())?.email
 
-  if (!id) {
+  if (!email) {
     throw new Error("Not Found")
   }
 
-  await prismaClient.user.delete({
-    where: { id },
-  })
+  await userRepository.deleteUserAccount({ email })
+
+  return
 }
 
-export async function updateUserAction(data: Prisma.UserUpdateInput, id: string) {
-  const auth = await withRole(["ADMIN", "MANAGER"])
+export async function getUsersAction() {
+  const auth = await withRole([ERole.ADMIN, ERole.MANAGER, ERole.USER])
 
   if (!auth) {
     throw new Error("Unauthorized")
   }
 
-  const updatedUser = await prismaClient.user.update({
-    where: { id },
-    data,
-  })
+  const users = await userRepository.getUsers()
+
+  return users
+}
+
+export async function updateUserAction(data: Partial<IUser>, id: string) {
+  const auth = await withRole([ERole.ADMIN, ERole.MANAGER])
+
+  if (!auth) {
+    throw new Error("Unauthorized")
+  }
+
+  const updatedUser = await userRepository.saveUser({ id, ...data })
 
   revalidatePath("/app/usuarios")
   return updatedUser
 }
 
 export async function deleteUserAction(id: string) {
-  const auth = await withRole(["ADMIN", "MANAGER"])
+  const auth = await withRole([ERole.ADMIN, ERole.MANAGER])
 
   if (!auth) {
     throw new Error("Unauthorized")
   }
 
-  await prismaClient.user.delete({
-    where: { id },
-  })
+  await userRepository.deleteUserAccount({ id })
 
   revalidatePath("/app/usuarios")
 }

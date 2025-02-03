@@ -4,25 +4,24 @@
 import { z } from "@/lib/pt-zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
-import { Role, User } from "@prisma/client"
 import React, { ComponentProps } from 'react'
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select"
-import { RoleEnumMapper } from "@/lib/enum-utils"
 import { updateUserAction } from "@/actions/user"
+import { ERole, ERoleEnumMapper, IUser } from "@/models/user"
 
 const formSchema = z.object({
   givenName: z.string().nonempty(),
   familyName: z.string().nonempty(),
   email: z.string().email(),
-  role: z.nativeEnum(Role),
+  role: z.nativeEnum(ERole),
 })
 
 interface Props extends ComponentProps<'div'> {
-  user: User | null | undefined
+  user: IUser | null | undefined
   allowed: boolean
   onSuccess?: () => void
   onError?: () => void
@@ -113,8 +112,8 @@ export default function EditUserForm({ user, allowed, onSuccess, onError, classN
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.values(Role).map((role) => (
-                      <SelectItem key={role} value={role}>{RoleEnumMapper[role].label}</SelectItem>
+                    {Object.values(ERole).map((role) => (
+                      <SelectItem key={role} value={role}>{ERoleEnumMapper[role].label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

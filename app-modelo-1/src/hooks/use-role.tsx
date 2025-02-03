@@ -1,8 +1,8 @@
-import { Role } from "@prisma/client"
 import { withRole } from "@/lib/withRole"
+import { ERole } from "@/models/user"
 import { useEffect, useState } from "react"
 
-export const useRole = (requiredRole: Role[]) => {
+export const useRole = (requiredRole: ERole[]) => {
   const [allowed, setAllowed] = useState<boolean>(false)
 
   useEffect(() => {

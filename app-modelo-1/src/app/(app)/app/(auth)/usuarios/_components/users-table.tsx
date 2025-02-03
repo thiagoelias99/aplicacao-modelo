@@ -1,9 +1,7 @@
 "use client"
 
 import { DataTable } from "@/components/ui/data-table"
-import { RoleEnumMapper } from "@/lib/enum-utils"
 import { cn } from "@/lib/utils"
-import { Role, User } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import { ComponentProps, useState } from "react"
 import {
@@ -28,13 +26,14 @@ import EditUserForm from "./edit-user-form"
 import { useToast } from "@/hooks/use-toast"
 import { deleteUserAction } from "@/actions/user"
 import { useRole } from "@/hooks/use-role"
+import { ERole, ERoleEnumMapper, IUser } from "@/models/user"
 
 function getColumns(
-  setSelectedUser: (user: User) => void,
+  setSelectedUser: (user: IUser) => void,
   setIsDialogOpen: (isOpen: boolean) => void,
   setIsSheetOpen: (isOpen: boolean) => void,
   allowed: boolean
-): ColumnDef<User>[] {
+): ColumnDef<IUser>[] {
   return [
     {
       accessorKey: "givenName",
@@ -53,7 +52,7 @@ function getColumns(
     {
       accessorKey: "role",
       header: () => <p className="text-center">Permissão</p>,
-      cell: (row) => <p className="text-center">{RoleEnumMapper[row.getValue() as Role].label}</p>,
+      cell: (row) => <p className="text-center">{ERoleEnumMapper[row.getValue() as ERole].label}</p>,
     },
     {
       accessorKey: "id",
@@ -85,15 +84,15 @@ function getColumns(
 }
 
 interface Props extends ComponentProps<'div'> {
-  data: User[]
+  data: IUser[]
 }
 
 export default function UsersTable({ data, className, ...rest }: Props) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null)
   const { toast } = useToast()
-  const { allowed } = useRole(["ADMIN", "MANAGER"])
+  const { allowed } = useRole([ERole.ADMIN, ERole.MANAGER])
 
   async function handleDeleteUser() {
     try {
