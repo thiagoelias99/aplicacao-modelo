@@ -5,10 +5,11 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=app_modelo_1
     ports:
       - "5432:5432"
-    volumes:
-      - ./.postgres-data:/var/lib/postgresql/data
+    # volumes:
+    #   - ./.postgres-data:/var/lib/postgresql/data
     networks:
       - app-app_db
     healthcheck:
@@ -28,6 +29,5 @@ services:
 
 networks:
   app-app_db:
-
-volumes:
-  .postgres-data:
+# volumes:
+#   .postgres-data:

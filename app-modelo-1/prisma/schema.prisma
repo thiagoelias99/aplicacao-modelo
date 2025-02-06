@@ -25,3 +25,18 @@ model User {
 
   @@map("users")
 }
+
+model Ingredient {
+  id                  String   @id
+  name                String
+  slug                String   @unique
+  description         String?
+  measureUnitClass    String   @map("measure_unit_class")
+  measureUnit         String   @map("measure_unit")
+  measureUnitQuantity Float    @map("measure_unit_quantity")
+  price               Decimal  @db.Decimal(10, 2)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("ingredients")
+}

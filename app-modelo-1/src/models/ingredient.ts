@@ -13,6 +13,7 @@ export interface IIngredient {
 
 export interface ICreateIngredient {
   name: string
+  slug?: string
   description?: string
   measureUnitClass: EMeasureUnitClass
   measureUnit: EMeasureUnit

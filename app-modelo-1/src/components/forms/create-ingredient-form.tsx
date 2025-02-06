@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select"
 import { EMeasureUnit, EMeasureUnitClass, EMeasureUnitClassMapper, EMeasureUnitMapper } from "@/models/ingredient"
+import { createIngredientAction } from "@/actions/ingredient"
 
 const formSchema = z.object({
   name: z.string().nonempty(),
@@ -48,7 +49,7 @@ export default function CreateIngredientForm({ onSuccess, onError, className, ..
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values)
+      await createIngredientAction(values)
       onSuccess && onSuccess()
     } catch (error) {
       console.error(error)
@@ -133,9 +134,6 @@ export default function CreateIngredientForm({ onSuccess, onError, className, ..
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {/* {Object.values(EMeasureUnit).map((item) => (
-                      <SelectItem key={item} value={item}>{EMeasureUnitMapper[item].unit}</SelectItem>
-                    ))} */}
                     {EMeasureUnitClassMapper[form.watch('measureUnitClass') as EMeasureUnitClass] ?
                       (
                         EMeasureUnitClassMapper[form.watch('measureUnitClass') as EMeasureUnitClass].primaryUnits.map((item) => (
