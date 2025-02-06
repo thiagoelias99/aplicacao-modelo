@@ -11,7 +11,8 @@
     "db:push": "prisma db push",
     "studio": "prisma studio",
     "reset": "prisma migrate reset --force",
-    "prepare": "npx prisma migrate deploy && npx prisma generate"
+    "prepare": "npx prisma migrate deploy && npx prisma generate",
+    "docker": "docker-compose up -d"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
