@@ -21,8 +21,7 @@ enum EMeasureUnit {
   KILOGRAM = 'KILOGRAM',
 
   // QUANTITY
-  UNIT = 'UNIT',
-  DOZEN = 'DOZEN'
+  UNIT = 'UNIT'
 }
 
 const ingredients = [
@@ -122,8 +121,8 @@ const ingredients = [
     slug: "ovos",
     description: "Ovos brancos",
     measureUnitClass: EMeasureUnitClass.QUANTITY,
-    measureUnit: EMeasureUnit.DOZEN,
-    measureUnitQuantity: 1,
+    measureUnit: EMeasureUnit.UNIT,
+    measureUnitQuantity: 12,
     price: 12.0
   },
   {

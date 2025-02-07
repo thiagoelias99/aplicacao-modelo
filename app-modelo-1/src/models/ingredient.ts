@@ -1,8 +1,10 @@
+import { formatCurrency } from "@/lib/utils"
+
 export interface IIngredient {
   id: string
   name: string
   slug: string
-  description?: string
+  description: string
   measureUnitClass: EMeasureUnitClass
   measureUnit: EMeasureUnit
   measureUnitQuantity: number
@@ -41,9 +43,7 @@ export enum EMeasureUnit {
   KILOGRAM = 'KILOGRAM',
 
   // QUANTITY
-  UNIT = 'UNIT',
-  BOX = 'BOX',
-  DOZEN = 'DOZEN'
+  UNIT = 'UNIT'
 }
 
 type EMeasureUnitClassMapper = {
@@ -57,7 +57,7 @@ type EMeasureUnitClassMapper = {
 export const EMeasureUnitClassMapper: Record<EMeasureUnitClass, EMeasureUnitClassMapper> = {
   [EMeasureUnitClass.MASS]: {
     label: 'Peso',
-    mainUnit: EMeasureUnit.GRAM,
+    mainUnit: EMeasureUnit.KILOGRAM,
     primaryUnits: [EMeasureUnit.GRAM, EMeasureUnit.KILOGRAM],
     secondaryUnits: [],
     allUnits: [EMeasureUnit.GRAM, EMeasureUnit.KILOGRAM]
@@ -72,56 +72,85 @@ export const EMeasureUnitClassMapper: Record<EMeasureUnitClass, EMeasureUnitClas
   [EMeasureUnitClass.QUANTITY]: {
     label: 'Unidades',
     mainUnit: EMeasureUnit.UNIT,
-    primaryUnits: [EMeasureUnit.UNIT, EMeasureUnit.DOZEN],
-    secondaryUnits: [EMeasureUnit.BOX],
-    allUnits: [EMeasureUnit.UNIT, EMeasureUnit.BOX, EMeasureUnit.DOZEN]
+    primaryUnits: [EMeasureUnit.UNIT],
+    secondaryUnits: [],
+    allUnits: [EMeasureUnit.UNIT]
   }
 }
 
 type EMeasureUnitMapper = {
   unit: string
   description: string
+  mainUnitRatio: number
 }
 
 export const EMeasureUnitMapper: Record<EMeasureUnit, EMeasureUnitMapper> = {
   [EMeasureUnit.LITER]: {
     unit: 'L',
-    description: 'Litro'
+    description: 'Litro',
+    mainUnitRatio: 1
   },
   [EMeasureUnit.MILLILITER]: {
     unit: 'mL',
-    description: 'Mililitro'
+    description: 'Mililitro',
+    mainUnitRatio: 0.001
   },
   [EMeasureUnit.TEASPOON]: {
     unit: 'colher de chá',
-    description: 'Colher de chá'
+    description: 'Colher de chá',
+    mainUnitRatio: 0.005
   },
   [EMeasureUnit.TABLESPOON]: {
     unit: 'colher de sopa',
-    description: 'Colher de sopa'
+    description: 'Colher de sopa',
+    mainUnitRatio: 0.015
   },
   [EMeasureUnit.CUP]: {
     unit: 'xícara',
-    description: 'Xícara'
-  },
-  [EMeasureUnit.GRAM]: {
-    unit: 'g',
-    description: 'Grama'
+    description: 'Xícara',
+    mainUnitRatio: 0.24
   },
   [EMeasureUnit.KILOGRAM]: {
     unit: 'kg',
-    description: 'Quilograma'
+    description: 'Quilograma',
+    mainUnitRatio: 1
+  },
+  [EMeasureUnit.GRAM]: {
+    unit: 'g',
+    description: 'Grama',
+    mainUnitRatio: 0.001
   },
   [EMeasureUnit.UNIT]: {
     unit: 'un',
-    description: 'Unidade'
-  },
-  [EMeasureUnit.BOX]: {
-    unit: 'caixa',
-    description: 'Caixa'
-  },
-  [EMeasureUnit.DOZEN]: {
-    unit: 'dúzia',
-    description: 'Dúzia'
+    description: 'Unidade',
+    mainUnitRatio: 1
+  }
+}
+
+export class Ingredient implements IIngredient {
+  public id: string
+  public name: string
+  public slug: string
+  public description: string
+  public measureUnitClass: EMeasureUnitClass
+  public measureUnit: EMeasureUnit
+  public measureUnitQuantity: number
+  public price: number
+  public createdAt: Date
+  public updatedAt: Date
+
+  constructor(data: IIngredient) {
+    Object.assign(this, data)
+
+    this.createdAt = new Date(data.createdAt)
+    this.updatedAt = new Date(data.updatedAt)
+  }
+
+  get pricePerUnit(): number {
+    return this.price / this.measureUnitQuantity / EMeasureUnitMapper[this.measureUnit].mainUnitRatio
+  }
+
+  get formattedPricePerUnit(): string {
+    return formatCurrency(this.pricePerUnit) + ` / ${EMeasureUnitMapper[EMeasureUnitClassMapper[this.measureUnitClass].mainUnit].unit}`
   }
 }

@@ -2,12 +2,10 @@
 
 import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
-import { ComponentProps } from "react"
-import { EMeasureUnitMapper, IIngredient } from "@/models/ingredient"
-import { Card, CardContent } from "../ui/card"
-import { cn, formatCurrency } from "@/lib/utils"
+import { EMeasureUnitMapper, IIngredient, Ingredient } from "@/models/ingredient"
+import { formatCurrency } from "@/lib/utils"
 
-function getColumns(): ColumnDef<IIngredient>[] {
+function getColumns(): ColumnDef<Ingredient>[] {
   return [
     {
       accessorKey: "name",
@@ -15,7 +13,8 @@ function getColumns(): ColumnDef<IIngredient>[] {
     },
     {
       accessorKey: "measureUnitQuantity",
-      header: "Quantidade",
+      header: () => <p className="text-center">Quantidade</p>,
+      cell: (row) => <p className="text-center">{row.getValue() as string}</p>
     },
     {
       accessorKey: "measureUnit",
@@ -28,27 +27,28 @@ function getColumns(): ColumnDef<IIngredient>[] {
       cell: (row) => <p className="text-center">{formatCurrency(Number(row.getValue()))}</p>,
     },
     {
+      accessorKey: "formattedPricePerUnit",
+      header: () => <p className="text-center">Preço de Referência</p>,
+      cell: (row) => <p className="text-center">{row.getValue() as string}</p>,
+    },
+    {
       accessorKey: "id",
       header: () => <p className="text-center">ID</p>,
     },
   ]
 }
 
-interface Props extends ComponentProps<'div'> {
+interface Props {
   data: IIngredient[]
 }
 
-export default function IngredientsTable({ data, className, ...rest }: Props) {
+export default function IngredientsTable({ data }: Props) {
+  const ingredients = data.map((ingredient) => new Ingredient(ingredient))
+
   return (
-    <Card className={cn("", className)}
-      {...rest}
-    >
-      <CardContent>
-        <DataTable
-          columns={getColumns()}
-          data={data}
-        />
-      </CardContent>
-    </Card>
+    <DataTable
+      columns={getColumns()}
+      data={ingredients}
+    />
   )
 }
