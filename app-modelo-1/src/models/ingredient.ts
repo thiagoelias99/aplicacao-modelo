@@ -153,4 +153,12 @@ export class Ingredient implements IIngredient {
   get formattedPricePerUnit(): string {
     return formatCurrency(this.pricePerUnit) + ` / ${EMeasureUnitMapper[EMeasureUnitClassMapper[this.measureUnitClass].mainUnit].unit}`
   }
+
+  static getFormattedPricePerUnit(price?: number, measureUnit?: EMeasureUnit, measureUnitQuantity?: number, measureUnitClass?: EMeasureUnitClass): string {
+    if (!price || !measureUnit || !measureUnitQuantity || !measureUnitClass) return ''
+
+    const value = price / measureUnitQuantity / EMeasureUnitMapper[measureUnit].mainUnitRatio
+    if (Number.isNaN(value)) return ''
+    return formatCurrency(value) + ` / ${EMeasureUnitMapper[EMeasureUnitClassMapper[measureUnitClass].mainUnit].unit}`
+  }
 }

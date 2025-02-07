@@ -5,17 +5,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { IIngredient } from "@/models/ingredient"
 import { notFound } from "next/navigation"
 
-interface Props {
-  params?: {
-    slug: string
-  }
-}
+type Params = Promise<{ slug: string }>
 
-export default async function NewIngredientPage({ params }: Props) {
-  if (!params?.slug) {
+export default async function NewIngredientPage(props: { params: Params }) {
+  const params = await props.params
+  const slug = params.slug
+
+  if (!slug) {
     return notFound()
   }
-  const ingredient: IIngredient | null = await getIngredientBySlugAction(params?.slug)
+  const ingredient: IIngredient | null = await getIngredientBySlugAction(slug)
 
   return (
     <DefaultPageTemplate

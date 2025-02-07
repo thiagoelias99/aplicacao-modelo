@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select"
-import { EMeasureUnit, EMeasureUnitClass, EMeasureUnitClassMapper, EMeasureUnitMapper, IIngredient } from "@/models/ingredient"
+import { EMeasureUnit, EMeasureUnitClass, EMeasureUnitClassMapper, EMeasureUnitMapper, IIngredient, Ingredient } from "@/models/ingredient"
 import { createIngredientAction, updateIngredientAction } from "@/actions/ingredient"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
@@ -21,14 +21,19 @@ const formSchema = z.object({
   measureUnit: z.nativeEnum(EMeasureUnit),
   measureUnitQuantity: z.union([
     z.string({ message: 'Valor inválido' })
-      .transform((val) => parseInt(val))
+      .transform((val) => parseFloat(val))
       .refine((val) => val > 0, { message: 'O valor precisa ser positivo e maior que zero' }),
     z.number().positive(),
   ]),
   price: z.union([
-    z.string({ message: 'Valor inválido' })
-      .transform((val) => parseInt(val))
-      .refine((val) => val > 0, { message: 'O valor precisa ser positivo e maior que zero' }),
+    z.string({ message: "Valor inválido" })
+      .refine((val) => /^(\d+([.,]\d*)?|\d*[.,]\d+)$/.test(val), {
+        message: "Formato inválido. Use apenas números com . ou , como separador decimal."
+      })
+      .transform((val) => parseFloat(val.replace(",", "."))) // Converte , para . antes do parse
+      .refine((val) => !isNaN(val) && val > 0, {
+        message: "O valor precisa ser positivo e maior que zero"
+      }),
     z.number().positive(),
   ])
 })
@@ -190,19 +195,34 @@ export default function IngredientForm({ ingredient, onSuccess, onError, classNa
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem className="sm:w-1/2 sm:pr-2">
-                <FormLabel>Preço</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="Preço por embalagem" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="sm:w-1/2 sm:pr-2">
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preço</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 pr-2 text-muted-foreground border-r">R$</span>
+                      <Input
+                        className="pl-12"
+                        placeholder="Preço total"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <span className="text-xs text-gray-500 pl-2">{Ingredient.getFormattedPricePerUnit(
+              Number(form.watch('price')?.toString().replace(",", ".")),
+              form.watch('measureUnit'),
+              form.watch('measureUnitQuantity'),
+              form.watch('measureUnitClass')
+            )}</span>
+          </div>
           <Button
             isLoading={form.formState.isSubmitting}
             type="submit"
