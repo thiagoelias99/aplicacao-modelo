@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select"
 import { EMeasureUnit, EMeasureUnitClass, EMeasureUnitClassMapper, EMeasureUnitMapper } from "@/models/ingredient"
 import { createIngredientAction } from "@/actions/ingredient"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   name: z.string().nonempty(),
@@ -45,15 +46,25 @@ export default function CreateIngredientForm({ onSuccess, onError, className, ..
       measureUnitQuantity: undefined,
     },
   })
+  const { toast } = useToast()
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await createIngredientAction(values)
-      onSuccess && onSuccess()
+      if (onSuccess) { onSuccess() } else {
+        toast({
+          title: 'Ingrediente salvo com sucesso',
+        })
+      }
     } catch (error) {
       console.error(error)
-      onError && onError()
+      if (onError) { onError() } else {
+        toast({
+          title: 'Erro ao salvar ingrediente',
+          variant: "destructive"
+        })
+      }
     }
   }
 
@@ -90,70 +101,72 @@ export default function CreateIngredientForm({ onSuccess, onError, className, ..
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="measureUnitClass"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Classe de Medida</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.values(EMeasureUnitClass).map((item) => (
-                      <SelectItem key={item} value={item}>{EMeasureUnitClassMapper[item].label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="measureUnit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unidade</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                  disabled={!EMeasureUnitClassMapper[form.watch('measureUnitClass')]}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {EMeasureUnitClassMapper[form.watch('measureUnitClass') as EMeasureUnitClass] ?
-                      (
-                        EMeasureUnitClassMapper[form.watch('measureUnitClass') as EMeasureUnitClass].primaryUnits.map((item) => (
-                          <SelectItem key={item} value={item}>{EMeasureUnitMapper[item].unit}</SelectItem>
-                        ))
-                      ) : (
-                        null
-                      )
-                    }
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="contents sm:flex gap-4">
+            <FormField
+              control={form.control}
+              name="measureUnitClass"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Classe de Medida</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(EMeasureUnitClass).map((item) => (
+                        <SelectItem key={item} value={item}>{EMeasureUnitClassMapper[item].label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="measureUnit"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Unidade</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    value={field.value}
+                    disabled={!EMeasureUnitClassMapper[form.watch('measureUnitClass')]}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {EMeasureUnitClassMapper[form.watch('measureUnitClass') as EMeasureUnitClass] ?
+                        (
+                          EMeasureUnitClassMapper[form.watch('measureUnitClass') as EMeasureUnitClass].primaryUnits.map((item) => (
+                            <SelectItem key={item} value={item}>{EMeasureUnitMapper[item].unit}</SelectItem>
+                          ))
+                        ) : (
+                          null
+                        )
+                      }
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             control={form.control}
             name="measureUnitQuantity"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="sm:w-1/2 sm:pr-2">
                 <FormLabel>Quantidade</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="Quantidade da embalagem" {...field} />
@@ -166,7 +179,7 @@ export default function CreateIngredientForm({ onSuccess, onError, className, ..
             control={form.control}
             name="price"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="sm:w-1/2 sm:pr-2">
                 <FormLabel>Preço</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="Preço por embalagem" {...field} />
@@ -178,6 +191,7 @@ export default function CreateIngredientForm({ onSuccess, onError, className, ..
           <Button
             isLoading={form.formState.isSubmitting}
             type="submit"
+            className="w-full sm:w-fit sm:px-10 self-center"
           >Salvar</Button>
         </form>
       </Form>

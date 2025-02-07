@@ -9,7 +9,7 @@ export default function NewIngredientPage() {
       title="Novo Ingrediente"
       enableBackButton
     >
-      <Card className="mt-6">
+      <Card className="w-full mt-6 max-w-screen-md mx-auto">
         <CardContent>
           <CreateIngredientForm />
         </CardContent>

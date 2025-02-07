@@ -20,5 +20,11 @@ export async function createIngredientAction(data: ICreateIngredient) {
 
   revalidatePath("/app/ingredients")
 
-  return JSON.stringify(ingredient)
+  return ingredient
+}
+
+export async function getAllIngredientsAction() {
+  const ingredients = await ingredientRepository.getAllIngredients()
+
+  return ingredients
 }

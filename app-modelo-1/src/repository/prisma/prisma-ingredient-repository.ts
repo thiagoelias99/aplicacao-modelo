@@ -25,6 +25,12 @@ export class PrismaIngredientRepository implements IIngredientRepository {
     return this.prismaToIngredient(ingredient)
   }
 
+  async getAllIngredients(): Promise<IIngredient[]> {
+    const ingredients = await prismaClient.ingredient.findMany()
+
+    return ingredients.map(this.prismaToIngredient)
+  }
+
   private prismaToIngredient(prismaUser: Ingredient): IIngredient {
     return {
       id: prismaUser.id,
