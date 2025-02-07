@@ -50,3 +50,10 @@ export async function getAppAuth(): Promise<AuthResponse> {
     }
   } as AuthResponse
 }
+
+export async function checkAuthOrReturnNull() {
+  const auth = await getAppAuth()
+  if (!auth.authenticated || !auth.user) {
+    return null
+  }
+}

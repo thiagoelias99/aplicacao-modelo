@@ -15,7 +15,7 @@ export default async function IngredientsPage() {
       title="Ingredientes"
       className="w-full flex flex-col justify-start items-start"
     >
-      <Link href={`/app/ingredientes/novo`} className="self-end">
+      <Link href={`/app/ingredientes/adicionar-novo`} className="self-end">
         <FabButton className="sm:hidden"><PlusIcon /></FabButton>
         <Button className="hidden sm:block"><PlusIcon /> Adicionar Ingrediente</Button>
       </Link>

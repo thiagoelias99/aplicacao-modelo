@@ -31,6 +31,16 @@ export class PrismaIngredientRepository implements IIngredientRepository {
     return ingredients.map(this.prismaToIngredient)
   }
 
+  async getIngredientBySlug(slug: string): Promise<IIngredient | null> {
+    const ingredient = await prismaClient.ingredient.findUnique({
+      where: {
+        slug
+      }
+    })
+
+    return ingredient ? this.prismaToIngredient(ingredient) : null
+  }
+
   private prismaToIngredient(prismaUser: Ingredient): IIngredient {
     return {
       id: prismaUser.id,

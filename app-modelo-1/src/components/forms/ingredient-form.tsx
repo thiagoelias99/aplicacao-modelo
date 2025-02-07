@@ -1,4 +1,4 @@
-"use client"/* eslint-disable @typescript-eslint/no-unused-expressions */
+"use client"
 
 import { z } from "@/lib/pt-zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -9,9 +9,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select"
-import { EMeasureUnit, EMeasureUnitClass, EMeasureUnitClassMapper, EMeasureUnitMapper } from "@/models/ingredient"
-import { createIngredientAction } from "@/actions/ingredient"
+import { EMeasureUnit, EMeasureUnitClass, EMeasureUnitClassMapper, EMeasureUnitMapper, IIngredient } from "@/models/ingredient"
+import { createIngredientAction, updateIngredientAction } from "@/actions/ingredient"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   name: z.string().nonempty(),
@@ -33,29 +34,43 @@ const formSchema = z.object({
 })
 
 interface Props extends ComponentProps<'div'> {
+  ingredient: IIngredient | null
   onSuccess?: () => void
   onError?: () => void
 }
 
-export default function CreateIngredientForm({ onSuccess, onError, className, ...rest }: Props) {
+export default function IngredientForm({ ingredient, onSuccess, onError, className, ...rest }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      measureUnitClass: undefined,
-      measureUnit: undefined,
-      measureUnitQuantity: undefined,
+      name: ingredient?.name,
+      description: ingredient?.description,
+      measureUnit: ingredient?.measureUnit,
+      measureUnitClass: ingredient?.measureUnitClass,
+      measureUnitQuantity: ingredient?.measureUnitQuantity,
+      price: ingredient?.price,
     },
   })
   const { toast } = useToast()
+  const router = useRouter()
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await createIngredientAction(values)
+
+      if (ingredient) {
+        // Update
+        await updateIngredientAction({ ...ingredient, ...values })
+      } else {
+        // Create
+        await createIngredientAction(values)
+      }
+
       if (onSuccess) { onSuccess() } else {
         toast({
           title: 'Ingrediente salvo com sucesso',
         })
+        router.back()
       }
     } catch (error) {
       console.error(error)

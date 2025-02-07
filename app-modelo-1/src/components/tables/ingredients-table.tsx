@@ -4,6 +4,9 @@ import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 import { EMeasureUnitMapper, IIngredient, Ingredient } from "@/models/ingredient"
 import { formatCurrency } from "@/lib/utils"
+import Link from "next/link"
+import { Button } from "../ui/button"
+import { Edit2Icon } from "lucide-react"
 
 function getColumns(): ColumnDef<Ingredient>[] {
   return [
@@ -32,8 +35,13 @@ function getColumns(): ColumnDef<Ingredient>[] {
       cell: (row) => <p className="text-center">{row.getValue() as string}</p>,
     },
     {
-      accessorKey: "id",
-      header: () => <p className="text-center">ID</p>,
+      accessorKey: "slug",
+      header: () => <p className="text-center">Ações</p>,
+      cell: (row) => <p className="text-center">
+        <Link href={`/app/ingredientes/${row.getValue()}`}>
+          <Button variant="secondary" size="icon"><Edit2Icon /></Button>
+        </Link>
+      </p>,
     },
   ]
 }

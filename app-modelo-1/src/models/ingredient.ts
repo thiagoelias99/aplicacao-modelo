@@ -4,7 +4,7 @@ export interface IIngredient {
   id: string
   name: string
   slug: string
-  description: string
+  description?: string
   measureUnitClass: EMeasureUnitClass
   measureUnit: EMeasureUnit
   measureUnitQuantity: number
