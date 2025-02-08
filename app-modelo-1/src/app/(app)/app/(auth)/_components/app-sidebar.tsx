@@ -16,7 +16,7 @@ import { routes } from "@/config/routes"
 import Image from "next/image"
 
 export default function AppSidebar() {
-  const { setOpenMobile, open } = useSidebar()
+  const { setOpenMobile, open, isMobile } = useSidebar()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -37,7 +37,7 @@ export default function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className={(open || isMobile) ? '' : 'mt-16'}>
               {routes.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
