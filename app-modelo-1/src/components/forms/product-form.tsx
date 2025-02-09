@@ -9,6 +9,14 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 
+
+import ReactSelect from 'react-select'
+import { useEffect, useMemo, useState } from "react"
+import { getAllIngredientsAction } from "@/actions/ingredient"
+import { EMeasureUnitClassMapper, IIngredient } from "@/models/ingredient"
+import { H2 } from "../ui/typography"
+import { PlusIcon, XIcon } from "lucide-react"
+
 const formSchema = z.object({
   name: z.string().nonempty(),
   description: z.string().optional(),
@@ -34,7 +42,24 @@ const formSchema = z.object({
       }),
     z.number().int().positive(),
   ]),
-  annotation: z.string().optional()
+  annotation: z.string().optional(),
+  ingredients: z.array(
+    z.object({
+      label: z.string().min(2).max(50).optional(),
+      value: z.string().min(2).max(50).optional(),
+      quantity: z.union([
+        z.string({ message: "Valor inválido" })
+          .refine((val) => /^(\d+([.,]\d*)?|\d*[.,]\d+)$/.test(val), {
+            message: "Formato inválido. Use apenas números com . ou , como separador decimal."
+          })
+          .transform((val) => parseFloat(val.replace(",", "."))) // Converte , para . antes do parse
+          .refine((val) => !isNaN(val) && val > 0, {
+            message: "O valor precisa ser positivo e maior que zero"
+          }),
+        z.number().positive(),
+      ]).optional()
+    }))
+    .default([])
 })
 
 interface Props {
@@ -43,13 +68,39 @@ interface Props {
 }
 
 export default function ProductForm({ onSuccess, onError }: Props) {
+  const [ingredients, setIngredients] = useState<IIngredient[]>([])
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-
+      ingredients: [{ label: undefined, value: undefined }]
     },
   })
   const { toast } = useToast()
+
+  useEffect(() => {
+    getAllIngredientsAction().then(setIngredients)
+  }, [])
+
+  const selectOptions = useMemo(() => {
+    return ingredients.map(ingredient => ({
+      label: ingredient.name,
+      value: ingredient.id,
+      measureUnit: EMeasureUnitClassMapper[ingredient.measureUnitClass].mainUnit,
+    }))
+  }, [ingredients])
+
+  function handleAddIngredient() {
+    const ingredients = form.getValues("ingredients")
+    form.setValue("ingredients", [...ingredients, { label: undefined, value: undefined, quantity: undefined }])
+    form.clearErrors("ingredients")
+  }
+
+  function handleRemoveIngredient(id: string | undefined) {
+    if (!id) return
+    const ingredients = form.getValues("ingredients")
+    const newIngredients = ingredients.filter((ingredient) => ingredient?.value !== id)
+    form.reset({ ...form.getValues(), ingredients: newIngredients })
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -155,11 +206,65 @@ export default function ProductForm({ onSuccess, onError }: Props) {
             </FormItem>
           )}
         />
+        <H2>Ingredientes</H2>
+        <div className="w-full flex flex-col gap-1">
+          {form.getValues("ingredients")?.map((value, index) => (
+            <div
+              key={index}
+              className="w-full flex justify-start items-end gap-1"
+            >
+              <FormField
+                control={form.control}
+                name={`ingredients[${index}]` as `ingredients.${number}`}
+                key={`ingredients[${index}]`}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        options={selectOptions}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`ingredients[${index}].quantity` as `ingredients.${number}.quantity`}
+                render={({ field }) => (
+                  <FormItem className="w-28">
+                    <FormLabel className="text-center">Quant.</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="text-center"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                onClick={() => handleRemoveIngredient(value?.value)}
+              ><XIcon /></Button>
+            </div>
+          ))}
+        </div>
         <Button
-          isLoading={form.formState.isSubmitting}
+          type="button"
+          variant="secondary"
+          onClick={handleAddIngredient}
+        ><PlusIcon /> Adicionar ingrediente</Button>
+        <Button
           type="submit"
+          isLoading={form.formState.isSubmitting}
           className="w-full sm:w-fit sm:px-10 self-center"
-        >Salvar</Button>
+        >Salvar Produto</Button>
       </form>
     </Form>
   )
