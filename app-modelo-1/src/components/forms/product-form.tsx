@@ -116,7 +116,11 @@ export default function ProductForm({ onSuccess, onError }: Props) {
       if (ingredient?.value && ingredient?.quantity && ingredient?.measureUnit) {
         const selectedIngredient = ingredients.find(i => i.id === ingredient.value)
         if (selectedIngredient) {
-          acc += calculateIngredientPrice(Number(ingredient.quantity.toString().replace(",", ".")), selectedIngredient.price)
+          acc += calculateIngredientPrice(
+            Number(ingredient.quantity.toString().replace(",", ".")),
+            selectedIngredient.price,
+            selectedIngredient.measureUnitQuantity
+          )
         }
       }
       return acc
@@ -131,6 +135,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
       value: ingredient.id,
       measureUnit: EMeasureUnitClassMapper[ingredient.measureUnitClass].mainUnit,
       referencePrice: ingredient.price,
+      referenceQuantity: ingredient.measureUnitQuantity,
       referenceUnit: ingredient.measureUnit,
     }))
   }, [ingredients])
@@ -147,8 +152,8 @@ export default function ProductForm({ onSuccess, onError }: Props) {
     form.reset({ ...form.getValues(), ingredients: newIngredients })
   }
 
-  function calculateIngredientPrice(quantity: number, referencePrice: number) {
-    return quantity * referencePrice
+  function calculateIngredientPrice(quantity: number, referencePrice: number, referenceQuantity: number) {
+    return quantity * referencePrice / referenceQuantity
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
