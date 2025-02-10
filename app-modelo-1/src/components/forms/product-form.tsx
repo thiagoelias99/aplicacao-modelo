@@ -16,6 +16,7 @@ import { getAllIngredientsAction } from "@/actions/ingredient"
 import { EMeasureUnitClassMapper, EMeasureUnit, IIngredient, EMeasureUnitMapper } from "@/models/ingredient"
 import { H2 } from "../ui/typography"
 import { PlusIcon, XIcon } from "lucide-react"
+import { formatCurrency } from "@/lib/utils"
 
 const formSchema = z.object({
   name: z.string().nonempty(),
@@ -60,7 +61,29 @@ const formSchema = z.object({
       ]).optional(),
       measureUnit: z.nativeEnum(EMeasureUnit).optional(),
     }))
-    .default([])
+    .default([]),
+  profitMargin: z.union([
+    z.string({ message: "Valor inválido" })
+      .refine((val) => /^(\d+([.,]\d*)?|\d*[.,]\d+)$/.test(val), {
+        message: "Formato inválido. Use apenas números com . ou , como separador decimal."
+      })
+      .transform((val) => parseFloat(val.replace(",", "."))) // Converte , para . antes do parse
+      .refine((val) => !isNaN(val) && val > 0, {
+        message: "O valor precisa ser positivo e maior que zero"
+      }),
+    z.number().positive(),
+  ]),
+  sellingPrice: z.union([
+    z.string({ message: "Valor inválido" })
+      .refine((val) => /^(\d+([.,]\d*)?|\d*[.,]\d+)$/.test(val), {
+        message: "Formato inválido. Use apenas números com . ou , como separador decimal."
+      })
+      .transform((val) => parseFloat(val.replace(",", "."))) // Converte , para . antes do parse
+      .refine((val) => !isNaN(val) && val > 0, {
+        message: "O valor precisa ser positivo e maior que zero"
+      }),
+    z.number().positive(),
+  ])
 })
 
 interface Props {
@@ -69,21 +92,36 @@ interface Props {
 }
 
 export default function ProductForm({ onSuccess, onError }: Props) {
+  const [isLoading, setIsLoading] = useState(true)
   const [ingredients, setIngredients] = useState<IIngredient[]>([])
+  const [referencePrice, setReferencePrice] = useState<number>(0)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ingredients: [{ label: undefined, value: undefined }]
+      ingredients: [{ label: undefined, value: undefined }],
+      profitMargin: 0
     },
   })
   const { toast } = useToast()
 
   useEffect(() => {
-    getAllIngredientsAction().then(setIngredients)
+    getAllIngredientsAction()
+      .then(setIngredients)
+      .finally(() => setIsLoading(false))
   }, [])
 
   useEffect(() => {
-    // Do nothing, but is necessary to trigger the effect
+    const price = form.getValues("ingredients").reduce((acc, ingredient) => {
+      if (ingredient?.value && ingredient?.quantity && ingredient?.measureUnit) {
+        const selectedIngredient = ingredients.find(i => i.id === ingredient.value)
+        if (selectedIngredient) {
+          acc += calculateIngredientPrice(Number(ingredient.quantity.toString().replace(",", ".")), selectedIngredient.price)
+        }
+      }
+      return acc
+    }, 0)
+
+    setReferencePrice(price)
   }, [form.watch()])
 
   const selectOptions = useMemo(() => {
@@ -91,6 +129,8 @@ export default function ProductForm({ onSuccess, onError }: Props) {
       label: ingredient.name,
       value: ingredient.id,
       measureUnit: EMeasureUnitClassMapper[ingredient.measureUnitClass].mainUnit,
+      referencePrice: ingredient.price,
+      referenceUnit: ingredient.measureUnit,
     }))
   }, [ingredients])
 
@@ -100,16 +140,14 @@ export default function ProductForm({ onSuccess, onError }: Props) {
     form.clearErrors("ingredients")
   }
 
-  // function handleRemoveIngredient(id: string | undefined) {
-  //   if (!id) return
-  //   const ingredients = form.getValues("ingredients")
-  //   const newIngredients = ingredients.filter((ingredient) => ingredient?.value !== id)
-  //   form.reset({ ...form.getValues(), ingredients: newIngredients })
-  // }
   function handleRemoveIngredient(index: number) {
     const ingredients = form.getValues("ingredients")
     const newIngredients = ingredients.filter((ingredient, i) => i !== index)
     form.reset({ ...form.getValues(), ingredients: newIngredients })
+  }
+
+  function calculateIngredientPrice(quantity: number, referencePrice: number) {
+    return quantity * referencePrice
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -172,8 +210,8 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                 <div className="relative">
                   <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">minutos</span>
                   <Input
-                    className="text-center"
-                    placeholder="Tempo de preparo em minutos"
+                    className="text-center placeholder:text-start"
+                    placeholder="Qual o tempo de preparo?"
                     {...field}
                   />
                 </div>
@@ -192,8 +230,8 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                 <div className="relative">
                   <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">pessoas</span>
                   <Input
-                    className="text-center"
-                    placeholder="Rendimento do produto para pessoas"
+                    className="text-center placeholder:text-start"
+                    placeholder="Qual o rendimento?"
                     {...field}
                   />
                 </div>
@@ -237,6 +275,8 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                       <FormControl>
                         <ReactSelect
                           options={selectOptions}
+                          isLoading={isLoading}
+                          isDisabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -254,6 +294,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                         <div className="relative w-full">
                           <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">{EMeasureUnitMapper[form.getValues(`ingredients[${index}].measureUnit` as `ingredients.${number}.measureUnit`) as EMeasureUnit]?.unit}</span>
                           <Input
+                            disabled={!form.getValues(`ingredients[${index}].value` as `ingredients.${number}.value`) || isLoading}
                             className="text-start"
                             {...field}
                           />
@@ -265,6 +306,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                 />
                 <Button
                   type="button"
+                  disabled={isLoading}
                   size="icon"
                   variant="destructive"
                   onClick={() => handleRemoveIngredient(index)}
@@ -272,12 +314,84 @@ export default function ProductForm({ onSuccess, onError }: Props) {
               </div>
             ))}
           </div>
+          <Button
+            isLoading={isLoading}
+            type="button"
+            variant="secondary"
+            onClick={handleAddIngredient}
+            className="w-full mt-2"
+          ><PlusIcon /> Adicionar ingrediente</Button>
         </div>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleAddIngredient}
-        ><PlusIcon /> Adicionar ingrediente</Button>
+        <div>
+          <H2>Preços</H2>
+          <FormDescription className="mt-1">Verifique abaixo os preço com base na lista de ingredientes</FormDescription>
+          <ul className="w-full flex flex-col gap-2 mt-2">
+            <li className="w-full flex justify-between items-center gap-2">
+              <p>Preço bruto dos ingredientes</p>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pr-2 text-muted-foreground border-r">R$</span>
+                <Input
+                  value={formatCurrency(referencePrice, { hideCurrency: true }) || "0,00"}
+                  onChange={() => { }}
+                  className="text-right w-28 cursor-not-allowed"
+                />
+              </div>
+            </li>
+            <li className="w-full flex justify-between items-center gap-2">
+              <p>Margem de lucro</p>
+              <FormField
+                control={form.control}
+                name="profitMargin"
+                render={({ field }) => (
+                  <FormItem className="text-right w-28 cursor-not-allowed">
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">%</span>
+                        <Input
+                          className="text-right pr-10 border-primary"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </li>
+            <li className="w-full flex justify-between items-center gap-2">
+              <p>Preço sugerido</p>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pr-2 text-muted-foreground border-r">R$</span>
+                <Input
+                  value={formatCurrency(referencePrice * (1 + Number(form.getValues("profitMargin")?.toString().replace(",", ".")) / 100) || 0, { hideCurrency: true })}
+                  onChange={() => { }}
+                  className="text-right w-28 cursor-not-allowed"
+                />
+              </div>
+            </li>
+            <li className="w-full flex justify-between items-center gap-2">
+              <p>Preço de Venda</p>
+              <FormField
+                control={form.control}
+                name="sellingPrice"
+                render={({ field }) => (
+                  <FormItem className="text-right w-28 cursor-not-allowed">
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pr-2 text-muted-foreground border-r">R$</span>
+                        <Input
+                          className="pl-12 text-right border-primary"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </li>
+          </ul>
+        </div>
         <Button
           type="submit"
           isLoading={form.formState.isSubmitting}
