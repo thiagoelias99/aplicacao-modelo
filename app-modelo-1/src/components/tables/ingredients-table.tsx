@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "../ui/button"
 import { Edit2Icon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 function getColumns(): ColumnDef<Ingredient>[] {
   return [
@@ -51,12 +52,20 @@ interface Props {
 }
 
 export default function IngredientsTable({ data }: Props) {
-  const ingredients = data.map((ingredient) => new Ingredient(ingredient))
+  const [tableData, setTableData] = useState<Ingredient[]>([])
+
+  useEffect(() => {
+    const ingredients = data.map((ingredient) => new Ingredient(ingredient))
+    setTableData(ingredients)
+  }, [data])
 
   return (
-    <DataTable
-      columns={getColumns()}
-      data={ingredients}
-    />
+    <div>
+      <DataTable
+        columns={getColumns()}
+        data={tableData}
+        enablePagination
+      />
+    </div>
   )
 }
