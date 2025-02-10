@@ -1,9 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
@@ -18,22 +21,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Input } from "./input"
 import { Button } from "./button"
+import { cn } from "@/lib/utils"
+import { ClassNameValue } from "tailwind-merge"
 import { ChevronFirst, ChevronLast, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { useState } from "react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   enablePagination?: boolean
+  filtering?: {
+    enableFiltering: boolean
+    field: string
+    placeholder?: string
+    className?: ClassNameValue
+  }
+  emptyMessage?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   enablePagination,
+  filtering,
+  emptyMessage = "Nenhum dado encontrado"
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    []
+  )
   const table = useReactTable({
     data,
     columns,
@@ -42,13 +59,29 @@ export function DataTable<TData, TValue>({
 
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+
     state: {
       sorting,
+      columnFilters
     }
   })
 
   return (
     <div className="rounded-md border">
+      {filtering?.enableFiltering && (
+        <div className={cn("flex items-center justify-center sm:justify-end space-x-2 px-1 py-1 mb-4 sm:w-72 lg:w-96 sm:ml-auto sm:px-4 sm:pt-2 sm:pb-0", filtering.className)}>
+          <Input
+            placeholder={filtering.placeholder}
+            value={(table.getColumn(filtering.field)?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn(filtering.field)?.setFilterValue(event.target.value)
+            }
+          />
+        </div>
+      )}
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -85,7 +118,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                Nenhum dado encontrado
+                {emptyMessage}
               </TableCell>
             </TableRow>
           )}

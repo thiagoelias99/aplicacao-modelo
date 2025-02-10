@@ -75,6 +75,11 @@ export default function IngredientsTable({ data }: Props) {
         columns={getColumns()}
         data={tableData}
         enablePagination
+        filtering={{
+          enableFiltering: true,
+          field: "name",
+          placeholder: "Pesquisar por nome"
+        }}
       />
     </div>
   )
