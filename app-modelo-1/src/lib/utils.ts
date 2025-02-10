@@ -10,6 +10,7 @@ interface FormatCurrencyOptions {
   maximumFractionDigits?: number
   appendSignage?: boolean,
   currency?: string,
+  currencySymbol?: string,
   hideCurrency?: boolean
 }
 
@@ -21,10 +22,11 @@ export function formatCurrency(value: number = 0, options?: FormatCurrencyOption
     return value.toFixed(2).replace(".", ",")
   }
 
-  return `${signage}${currency} ${Intl.NumberFormat("pt-BR", {
+  return `${signage} ${options?.currencySymbol || "R$"} ${Intl.NumberFormat("pt-BR", {
     currency: currency,
     minimumFractionDigits: options?.minimumFractionDigits || 2,
-    maximumFractionDigits: options?.maximumFractionDigits || 2
+    maximumFractionDigits: options?.maximumFractionDigits || 2,
+    currencyDisplay: "name"
   }).format(value)}`
 }
 

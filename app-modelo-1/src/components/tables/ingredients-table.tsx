@@ -6,14 +6,24 @@ import { EMeasureUnitMapper, IIngredient, Ingredient } from "@/models/ingredient
 import { formatCurrency } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "../ui/button"
-import { Edit2Icon } from "lucide-react"
+import { ArrowUpDown, Edit2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 
 function getColumns(): ColumnDef<Ingredient>[] {
   return [
     {
       accessorKey: "name",
-      header: "Nome",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Nome
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
     },
     {
       accessorKey: "measureUnitQuantity",

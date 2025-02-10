@@ -26,7 +26,13 @@ export class PrismaIngredientRepository implements IIngredientRepository {
   }
 
   async getAllIngredients(): Promise<IIngredient[]> {
-    const ingredients = await prismaClient.ingredient.findMany()
+    const ingredients = await prismaClient.ingredient.findMany(
+      {
+        orderBy: {
+          name: "asc"
+        }
+      }
+    )
 
     return ingredients.map(this.prismaToIngredient)
   }
