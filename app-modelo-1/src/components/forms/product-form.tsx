@@ -178,7 +178,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="lg:w-1/2">
               <FormLabel>Nome</FormLabel>
               <FormControl>
                 <Input placeholder="Digite o nome do produto" {...field} />
@@ -200,46 +200,48 @@ export default function ProductForm({ onSuccess, onError }: Props) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="preparationTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tempo de Preparo</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">minutos</span>
-                  <Input
-                    className="text-center placeholder:text-start"
-                    placeholder="Qual o tempo de preparo?"
-                    {...field}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="yield"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Rendimento do produto</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">pessoas</span>
-                  <Input
-                    className="text-center placeholder:text-start"
-                    placeholder="Qual o rendimento?"
-                    {...field}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="contents lg:flex gap-4 lg:w-1/2">
+          <FormField
+            control={form.control}
+            name="preparationTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tempo de Preparo</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">minutos</span>
+                    <Input
+                      className="text-center lg:text-start placeholder:text-start"
+                      placeholder="Qual o tempo de preparo?"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="yield"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rendimento do produto</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">pessoas</span>
+                    <Input
+                      className="text-center lg:text-start placeholder:text-start"
+                      placeholder="Qual o rendimento?"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="description"
@@ -259,7 +261,11 @@ export default function ProductForm({ onSuccess, onError }: Props) {
         <div className="w-full">
           <H2>Ingredientes ({form.getValues("ingredients").length})</H2>
           <FormDescription className="mt-1">Adicione abaixo os ingredientes necessários para o produto</FormDescription>
-          <div className="w-full mt-2 flex flex-col gap-1">
+          <div className="w-full mt-2 flex flex-col gap-[2px]">
+            <div className="w-full flex justify-between items-center gap-1 mb-1">
+              <span className="w-full">Nome</span>
+              <span className="w-44">Quant.</span>
+            </div>
             {form.getValues("ingredients")?.map((value, index) => (
               <div
                 key={index}
@@ -271,7 +277,6 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                   key={`ingredients[${index}]`}
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Nome</FormLabel>
                       <FormControl>
                         <ReactSelect
                           options={selectOptions}
@@ -289,7 +294,6 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                   name={`ingredients[${index}].quantity` as `ingredients.${number}.quantity`}
                   render={({ field }) => (
                     <FormItem className="w-52">
-                      <FormLabel className="text-center">Quant.</FormLabel>
                       <FormControl>
                         <div className="relative w-full">
                           <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">{EMeasureUnitMapper[form.getValues(`ingredients[${index}].measureUnit` as `ingredients.${number}.measureUnit`) as EMeasureUnit]?.unit}</span>
@@ -324,7 +328,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
         </div>
         <div>
           <H2>Preços</H2>
-          <FormDescription className="mt-1">Verifique abaixo os preço com base na lista de ingredientes</FormDescription>
+          <FormDescription className="mt-1">Ajuste abaixo o preço do produto</FormDescription>
           <ul className="w-full flex flex-col gap-2 mt-2">
             <li className="w-full flex justify-between items-center gap-2">
               <p>Preço bruto dos ingredientes</p>
