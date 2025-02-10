@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
 import { z } from "@/lib/pt-zod"
@@ -282,6 +283,44 @@ export default function ProductForm({ onSuccess, onError }: Props) {
                           options={selectOptions}
                           isLoading={isLoading}
                           isDisabled={isLoading}
+                          noOptionsMessage={() => "Nenhum item encontrado"}
+                          styles={{
+                            control: (provided) => ({
+                              ...provided,
+                              backgroundColor: "transparent",
+                              borderColor: "hsl(var(--border))",
+                              color: "hsl(var(--foreground))",
+                            }),
+                            indicatorSeparator: (provided) => ({
+                              ...provided,
+                              display: "none"
+                            }),
+                            option: (provided, state) => ({
+                              ...provided,
+                              backgroundColor: state.isSelected ? "hsl(var(--primary))" : state.isFocused ? "hsl(var(--accent))" : "hsl(var(--popover))",
+                              color: state.isSelected ? "hsl(var(--primary-foreground))" : state.isFocused ? "hsl(var(--accent-foreground))" : "hsl(var(--popover-foreground))",
+                              fontSize: "0.875rem"
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              color: "hsl(var(--foreground))",
+                              fontSize: "0.875rem"
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              color: "hsl(var(--foreground))",
+                              fontSize: "0.875rem"
+                            }),
+                            clearIndicator: (provided) => ({
+                              ...provided,
+                              color: "hsl(var(--muted-foreground))",
+                            }),
+                            dropdownIndicator: (provided) => ({
+                              ...provided,
+                              color: "hsl(var(--muted-foreground))",
+                              strokeWidth: 1,
+                            }),
+                          }}
                           {...field}
                         />
                       </FormControl>
