@@ -146,6 +146,10 @@ export class Ingredient implements IIngredient {
     this.updatedAt = new Date(data.updatedAt)
   }
 
+  get mainUnit(): EMeasureUnit {
+    return EMeasureUnitClassMapper[this.measureUnitClass].mainUnit
+  }
+
   get pricePerUnit(): number {
     return this.price / this.measureUnitQuantity / EMeasureUnitMapper[this.measureUnit].mainUnitRatio
   }

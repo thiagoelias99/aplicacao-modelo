@@ -14,7 +14,7 @@ import { Textarea } from "../ui/textarea"
 import ReactSelect from 'react-select'
 import { useEffect, useMemo, useState } from "react"
 import { getAllIngredientsAction } from "@/actions/ingredient"
-import { EMeasureUnitClassMapper, EMeasureUnit, IIngredient, EMeasureUnitMapper } from "@/models/ingredient"
+import { EMeasureUnitClassMapper, EMeasureUnit, EMeasureUnitMapper, Ingredient } from "@/models/ingredient"
 import { H2 } from "../ui/typography"
 import { PlusIcon, XIcon } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
@@ -45,6 +45,7 @@ const formSchema = z.object({
     z.number().int().positive(),
   ]),
   annotation: z.string().optional(),
+  recipe: z.string().optional(),
   ingredients: z.array(
     z.object({
       label: z.string({ message: "Teste" }).min(2).max(50).optional(),
@@ -94,7 +95,7 @@ interface Props {
 
 export default function ProductForm({ onSuccess, onError }: Props) {
   const [isLoading, setIsLoading] = useState(true)
-  const [ingredients, setIngredients] = useState<IIngredient[]>([])
+  const [ingredients, setIngredients] = useState<Ingredient[]>([])
   const [referencePrice, setReferencePrice] = useState<number>(0)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -107,7 +108,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
 
   useEffect(() => {
     getAllIngredientsAction()
-      .then(setIngredients)
+      .then((data) => setIngredients(data.map(ingredient => new Ingredient(ingredient))))
       .finally(() => setIsLoading(false))
   }, [])
 
@@ -118,8 +119,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
         if (selectedIngredient) {
           acc += calculateIngredientPrice(
             Number(ingredient.quantity.toString().replace(",", ".")),
-            selectedIngredient.price,
-            selectedIngredient.measureUnitQuantity
+            selectedIngredient.pricePerUnit
           )
         }
       }
@@ -134,7 +134,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
       label: ingredient.name,
       value: ingredient.id,
       measureUnit: EMeasureUnitClassMapper[ingredient.measureUnitClass].mainUnit,
-      referencePrice: ingredient.price,
+      referencePrice: ingredient.pricePerUnit,
       referenceQuantity: ingredient.measureUnitQuantity,
       referenceUnit: ingredient.measureUnit,
     }))
@@ -152,8 +152,8 @@ export default function ProductForm({ onSuccess, onError }: Props) {
     form.reset({ ...form.getValues(), ingredients: newIngredients })
   }
 
-  function calculateIngredientPrice(quantity: number, referencePrice: number, referenceQuantity: number) {
-    return quantity * referencePrice / referenceQuantity
+  function calculateIngredientPrice(quantity: number, referencePrice: number) {
+    return quantity * referencePrice
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -206,12 +206,12 @@ export default function ProductForm({ onSuccess, onError }: Props) {
             </FormItem>
           )}
         />
-        <div className="contents lg:flex gap-4 lg:w-1/2">
+        <div className="contents lg:flex gap-4 lg:w-full">
           <FormField
             control={form.control}
             name="preparationTime"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="lg:w-full">
                 <FormLabel>Tempo de Preparo</FormLabel>
                 <FormControl>
                   <div className="relative">
@@ -231,11 +231,11 @@ export default function ProductForm({ onSuccess, onError }: Props) {
             control={form.control}
             name="yield"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="lg:w-full">
                 <FormLabel>Rendimento do produto</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">pessoas</span>
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">porções</span>
                     <Input
                       className="text-center lg:text-start placeholder:text-start"
                       placeholder="Qual o rendimento?"
@@ -257,6 +257,22 @@ export default function ProductForm({ onSuccess, onError }: Props) {
               <FormControl>
                 <Textarea
                   placeholder="Digite anotações para o produto" {...field}
+                  className="min-h-32"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="recipe"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Receita <i>(opcional)</i></FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Qual a receita do produto?" {...field}
                   className="min-h-32"
                 />
               </FormControl>
