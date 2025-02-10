@@ -4,7 +4,7 @@ import { z } from "@/lib/pt-zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "@/hooks/use-toast"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
@@ -13,7 +13,7 @@ import { Textarea } from "../ui/textarea"
 import ReactSelect from 'react-select'
 import { useEffect, useMemo, useState } from "react"
 import { getAllIngredientsAction } from "@/actions/ingredient"
-import { EMeasureUnitClassMapper, IIngredient } from "@/models/ingredient"
+import { EMeasureUnitClassMapper, EMeasureUnit, IIngredient, EMeasureUnitMapper } from "@/models/ingredient"
 import { H2 } from "../ui/typography"
 import { PlusIcon, XIcon } from "lucide-react"
 
@@ -45,19 +45,20 @@ const formSchema = z.object({
   annotation: z.string().optional(),
   ingredients: z.array(
     z.object({
-      label: z.string().min(2).max(50).optional(),
-      value: z.string().min(2).max(50).optional(),
+      label: z.string({ message: "Teste" }).min(2).max(50).optional(),
+      value: z.string({ message: "Teste" }).min(2).max(50).optional(),
       quantity: z.union([
-        z.string({ message: "Valor inválido" })
+        z.string({ message: "Valor necessário" })
           .refine((val) => /^(\d+([.,]\d*)?|\d*[.,]\d+)$/.test(val), {
             message: "Formato inválido. Use apenas números com . ou , como separador decimal."
           })
-          .transform((val) => parseFloat(val.replace(",", "."))) // Converte , para . antes do parse
+          .transform((val) => parseFloat(val.replace(",", ".")))
           .refine((val) => !isNaN(val) && val > 0, {
             message: "O valor precisa ser positivo e maior que zero"
           }),
         z.number().positive(),
-      ]).optional()
+      ]).optional(),
+      measureUnit: z.nativeEnum(EMeasureUnit).optional(),
     }))
     .default([])
 })
@@ -81,6 +82,10 @@ export default function ProductForm({ onSuccess, onError }: Props) {
     getAllIngredientsAction().then(setIngredients)
   }, [])
 
+  useEffect(() => {
+    // Do nothing, but is necessary to trigger the effect
+  }, [form.watch()])
+
   const selectOptions = useMemo(() => {
     return ingredients.map(ingredient => ({
       label: ingredient.name,
@@ -91,21 +96,28 @@ export default function ProductForm({ onSuccess, onError }: Props) {
 
   function handleAddIngredient() {
     const ingredients = form.getValues("ingredients")
-    form.setValue("ingredients", [...ingredients, { label: undefined, value: undefined, quantity: undefined }])
+    form.setValue("ingredients", [...ingredients, { label: undefined, value: undefined, quantity: undefined, measureUnit: undefined }])
     form.clearErrors("ingredients")
   }
 
-  function handleRemoveIngredient(id: string | undefined) {
-    if (!id) return
+  // function handleRemoveIngredient(id: string | undefined) {
+  //   if (!id) return
+  //   const ingredients = form.getValues("ingredients")
+  //   const newIngredients = ingredients.filter((ingredient) => ingredient?.value !== id)
+  //   form.reset({ ...form.getValues(), ingredients: newIngredients })
+  // }
+  function handleRemoveIngredient(index: number) {
     const ingredients = form.getValues("ingredients")
-    const newIngredients = ingredients.filter((ingredient) => ingredient?.value !== id)
+    const newIngredients = ingredients.filter((ingredient, i) => i !== index)
     form.reset({ ...form.getValues(), ingredients: newIngredients })
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const filteredIngredients = values.ingredients.filter(ingredient => !!ingredient?.value && !!ingredient?.quantity && !!ingredient?.measureUnit)
+
     try {
       if (onSuccess) { onSuccess() } else {
-        console.log(values)
+        console.log({ ...values, ingredients: filteredIngredients })
         toast({
           title: 'Salvo com sucesso',
         })
@@ -206,54 +218,60 @@ export default function ProductForm({ onSuccess, onError }: Props) {
             </FormItem>
           )}
         />
-        <H2>Ingredientes</H2>
-        <div className="w-full flex flex-col gap-1">
-          {form.getValues("ingredients")?.map((value, index) => (
-            <div
-              key={index}
-              className="w-full flex justify-start items-end gap-1"
-            >
-              <FormField
-                control={form.control}
-                name={`ingredients[${index}]` as `ingredients.${number}`}
-                key={`ingredients[${index}]`}
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        options={selectOptions}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`ingredients[${index}].quantity` as `ingredients.${number}.quantity`}
-                render={({ field }) => (
-                  <FormItem className="w-28">
-                    <FormLabel className="text-center">Quant.</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="text-center"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="button"
-                size="icon"
-                variant="destructive"
-                onClick={() => handleRemoveIngredient(value?.value)}
-              ><XIcon /></Button>
-            </div>
-          ))}
+        <div className="w-full">
+          <H2>Ingredientes ({form.getValues("ingredients").length})</H2>
+          <FormDescription className="mt-1">Adicione abaixo os ingredientes necessários para o produto</FormDescription>
+          <div className="w-full mt-2 flex flex-col gap-1">
+            {form.getValues("ingredients")?.map((value, index) => (
+              <div
+                key={index}
+                className="w-full flex justify-start items-end gap-1"
+              >
+                <FormField
+                  control={form.control}
+                  name={`ingredients[${index}]` as `ingredients.${number}`}
+                  key={`ingredients[${index}]`}
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl>
+                        <ReactSelect
+                          options={selectOptions}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`ingredients[${index}].quantity` as `ingredients.${number}.quantity`}
+                  render={({ field }) => (
+                    <FormItem className="w-52">
+                      <FormLabel className="text-center">Quant.</FormLabel>
+                      <FormControl>
+                        <div className="relative w-full">
+                          <span className="absolute inset-y-0 right-0 flex items-center pr-3 pl-2 text-muted-foreground border-l">{EMeasureUnitMapper[form.getValues(`ingredients[${index}].measureUnit` as `ingredients.${number}.measureUnit`) as EMeasureUnit]?.unit}</span>
+                          <Input
+                            className="text-start"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="destructive"
+                  onClick={() => handleRemoveIngredient(index)}
+                ><XIcon /></Button>
+              </div>
+            ))}
+          </div>
         </div>
         <Button
           type="button"
