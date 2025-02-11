@@ -38,5 +38,42 @@ model Ingredient {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
 
+  Products            Product[]
+  IngredientOnProduct IngredientOnProduct[]
+
   @@map("ingredients")
+}
+
+model Product {
+  id              String   @id
+  name            String
+  slug            String   @unique
+  description     String?
+  preparationTime Int      @map("preparation_time")
+  yield           Int
+  annotation      String?
+  recipe          String?
+  profitMargin    Float    @map("profit_margin")
+  sellingPrice    Decimal  @map("selling_price") @db.Decimal(10, 2)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  Ingredients         Ingredient[]
+  IngredientOnProduct IngredientOnProduct[]
+
+  @@map("products")
+}
+
+model IngredientOnProduct {
+  ingredientId String   @map("ingredient_id")
+  productId    String   @map("product_id")
+  quantity     Float
+  measureUnit  String   @map("measure_unit")
+  assignedAt   DateTime @default(now()) @map("assigned_at")
+
+  Ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+  Product    Product    @relation(fields: [productId], references: [id])
+
+  @@id([ingredientId, productId])
+  @@map("ingredients_on_products")
 }

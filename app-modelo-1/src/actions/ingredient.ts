@@ -15,7 +15,7 @@ export async function createIngredientAction(data: ICreateIngredient) {
 
   const ingredient = await ingredientRepository.saveIngredient({ id, slug, ...data })
 
-  revalidatePath("/app/ingredients")
+  revalidatePath("/app/ingredientes")
 
   return ingredient
 }
@@ -27,7 +27,7 @@ export async function updateIngredientAction(data: IIngredient) {
 
   const ingredient = await ingredientRepository.saveIngredient({ ...data, slug })
 
-  revalidatePath("/app/ingredients")
+  revalidatePath("/app/ingredientes")
 
   return ingredient
 }

@@ -8,21 +8,27 @@ export interface IProduct {
   preparationTime: number
   yield: number
   annotation?: string
+  recipe?: string
   ingredients: IIngredient[]
   subProducts: IProduct[]
+  profitMargin: number
+  sellingPrice: number
   createdAt: Date
   updatedAt: Date
 }
 
-export interface IProductCreate {
+export interface ICreateProduct {
   name: string
-  slug?: string
+  slug: string
   description?: string
   preparationTime: number
   yield: number
   annotation?: string
-  ingredients: { id: string, quantity: number, measureUnit: EMeasureUnit }[]
-  // subProducts: IProduct[]
+  recipe?: string
+  ingredients?: { id: string, quantity: number, measureUnit: EMeasureUnit }[]
+  subProducts?: IProduct[]
+  profitMargin: number
+  sellingPrice: number
 }
 
 export class Product implements IProduct {
@@ -33,8 +39,11 @@ export class Product implements IProduct {
   preparationTime: number
   yield: number
   annotation?: string
+  recipe?: string
   ingredients: IIngredient[]
   subProducts: IProduct[]
+  profitMargin: number
+  sellingPrice: number
   createdAt: Date
   updatedAt: Date
 

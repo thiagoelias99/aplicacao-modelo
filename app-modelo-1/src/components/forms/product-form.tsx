@@ -18,6 +18,7 @@ import { EMeasureUnitClassMapper, EMeasureUnit, EMeasureUnitMapper, Ingredient }
 import { H2 } from "../ui/typography"
 import { PlusIcon, XIcon } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
+import { createProductAction } from "@/actions/product"
 
 const formSchema = z.object({
   name: z.string().nonempty(),
@@ -162,6 +163,16 @@ export default function ProductForm({ onSuccess, onError }: Props) {
     try {
       if (onSuccess) { onSuccess() } else {
         console.log({ ...values, ingredients: filteredIngredients })
+        await createProductAction({
+          ...values,
+          ingredients: filteredIngredients.map(ingredient => ({
+            id: ingredient.value!,
+            quantity: ingredient.quantity!,
+            measureUnit: ingredient.measureUnit!
+          })),
+          slug: ""
+        })
+
         toast({
           title: 'Salvo com sucesso',
         })
@@ -250,7 +261,7 @@ export default function ProductForm({ onSuccess, onError }: Props) {
         </div>
         <FormField
           control={form.control}
-          name="description"
+          name="annotation"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Anotações <i>(opcional)</i></FormLabel>
