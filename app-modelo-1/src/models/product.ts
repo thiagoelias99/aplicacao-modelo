@@ -9,7 +9,11 @@ export interface IProduct {
   yield: number
   annotation?: string
   recipe?: string
-  ingredients: IIngredient[]
+  ingredients: {
+    ingredient: IIngredient
+    quantity: number
+    measureUnit: EMeasureUnit
+  }[]
   subProducts: IProduct[]
   profitMargin: number
   sellingPrice: number
@@ -31,7 +35,11 @@ export interface ICreateProduct {
   sellingPrice: number
 }
 
-export class Product implements IProduct {
+export interface IUpdateProduct extends ICreateProduct {
+  id: string
+}
+
+export class Product {
   id: string
   name: string
   slug: string
@@ -40,7 +48,11 @@ export class Product implements IProduct {
   yield: number
   annotation?: string
   recipe?: string
-  ingredients: IIngredient[]
+  ingredients: {
+    ingredient: Ingredient
+    quantity: number
+    measureUnit: EMeasureUnit
+  }[]
   subProducts: IProduct[]
   profitMargin: number
   sellingPrice: number
@@ -49,10 +61,14 @@ export class Product implements IProduct {
 
   constructor(data: IProduct) {
     Object.assign(this, data)
-
-    this.ingredients = data.ingredients.map((ingredient) => new Ingredient(ingredient))
-    this.subProducts = data.subProducts.map((product) => new Product(product))
     this.createdAt = new Date(data.createdAt)
     this.updatedAt = new Date(data.updatedAt)
+
+    this.ingredients = data.ingredients.map((ingredient) => ({
+      ingredient: new Ingredient(ingredient.ingredient),
+      quantity: ingredient.quantity,
+      measureUnit: ingredient.measureUnit
+    }))
+    this.subProducts = data.subProducts.map((product) => new Product(product))
   }
 }

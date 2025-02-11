@@ -1,8 +1,8 @@
-import { ICreateProduct, IProduct } from "@/models/product"
+import { ICreateProduct, IProduct, IUpdateProduct } from "@/models/product"
 import { prismaClient } from "./prisma-client"
 import { IProductRepository } from "../product-repository"
-import { Ingredient, Prisma } from "@prisma/client"
-import { IIngredient } from "@/models/ingredient"
+import { Prisma } from "@prisma/client"
+import { PrismaIngredientRepository } from "./prisma-ingredient-repository"
 
 export class PrismaProductRepository implements IProductRepository {
   async createProduct(data: ICreateProduct, id: string): Promise<IProduct> {
@@ -15,6 +15,7 @@ export class PrismaProductRepository implements IProductRepository {
         preparationTime: data.preparationTime,
         yield: data.yield,
         annotation: data.annotation,
+        recipe: data.recipe,
         profitMargin: data.profitMargin,
         sellingPrice: data.sellingPrice,
         IngredientOnProduct: {
@@ -33,6 +34,50 @@ export class PrismaProductRepository implements IProductRepository {
         }
       }
     })
+
+    return this.prismaToProduct(product)
+  }
+
+  async updateProduct(data: IUpdateProduct): Promise<IProduct> {
+    const [, product] = await prismaClient.$transaction([
+      // Delete all ingredients from product
+      prismaClient.ingredientOnProduct.deleteMany({
+        where: {
+          productId: data.id
+        }
+      }),
+      // Update product creating new ingredients
+      prismaClient.product.update({
+        where: {
+          id: data.id
+        },
+        data: {
+          name: data.name,
+          slug: data.slug,
+          description: data.description,
+          preparationTime: data.preparationTime,
+          yield: data.yield,
+          annotation: data.annotation,
+          recipe: data.recipe,
+          profitMargin: data.profitMargin,
+          sellingPrice: data.sellingPrice,
+          IngredientOnProduct: {
+            create: data.ingredients?.map((ingredient) => ({
+              ingredientId: ingredient.id,
+              quantity: ingredient.quantity,
+              measureUnit: ingredient.measureUnit,
+            }))
+          }
+        },
+        include: {
+          IngredientOnProduct: {
+            include: {
+              Ingredient: true
+            }
+          }
+        }
+      })
+    ])
 
     return this.prismaToProduct(product)
   }
@@ -92,29 +137,14 @@ export class PrismaProductRepository implements IProductRepository {
       recipe: prisma.recipe || undefined,
       profitMargin: prisma.profitMargin,
       sellingPrice: Number(prisma.sellingPrice),
+      createdAt: prisma.createdAt,
+      updatedAt: prisma.updatedAt,
       ingredients: prisma.IngredientOnProduct.map((ingredientOnProduct) => ({
-        ...this.prismaToIngredient(ingredientOnProduct.Ingredient),
+        ingredient: PrismaIngredientRepository.prismaToIngredientSt(ingredientOnProduct.Ingredient),
         quantity: ingredientOnProduct.quantity,
         measureUnit: ingredientOnProduct.measureUnit as EMeasureUnit
       })),
-      subProducts: [],
-      createdAt: prisma.createdAt,
-      updatedAt: prisma.updatedAt
-    }
-  }
-
-  private prismaToIngredient(prisma: Ingredient): IIngredient {
-    return {
-      id: prisma.id,
-      name: prisma.name,
-      slug: prisma.slug,
-      description: prisma.description || undefined,
-      measureUnit: prisma.measureUnit as EMeasureUnit,
-      measureUnitClass: prisma.measureUnitClass as EMeasureUnitClass,
-      measureUnitQuantity: prisma.measureUnitQuantity,
-      price: Number(prisma.price),
-      createdAt: prisma.createdAt,
-      updatedAt: prisma.updatedAt
+      subProducts: []
     }
   }
 }

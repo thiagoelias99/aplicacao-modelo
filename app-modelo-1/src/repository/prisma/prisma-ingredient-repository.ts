@@ -61,4 +61,19 @@ export class PrismaIngredientRepository implements IIngredientRepository {
       updatedAt: prismaUser.updatedAt
     }
   }
+
+  static prismaToIngredientSt(prismaUser: Ingredient): IIngredient {
+    return {
+      id: prismaUser.id,
+      name: prismaUser.name,
+      slug: prismaUser.slug,
+      description: prismaUser.description || undefined,
+      measureUnit: prismaUser.measureUnit as EMeasureUnit,
+      measureUnitClass: prismaUser.measureUnitClass as EMeasureUnitClass,
+      measureUnitQuantity: prismaUser.measureUnitQuantity,
+      price: Number(prismaUser.price),
+      createdAt: prismaUser.createdAt,
+      updatedAt: prismaUser.updatedAt
+    }
+  }
 }

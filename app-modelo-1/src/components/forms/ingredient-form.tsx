@@ -77,11 +77,14 @@ export default function IngredientForm({ ingredient, onSuccess, onError, classNa
         })
         router.back()
       }
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error
       console.error(error)
+
       if (onError) { onError() } else {
         toast({
-          title: 'Erro ao salvar ingrediente',
+          title: 'Erro ao salvar',
+          description: error.message,
           variant: "destructive"
         })
       }

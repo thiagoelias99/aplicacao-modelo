@@ -1,3 +1,4 @@
+import { getProductBySlugAction } from "@/actions/product"
 import DefaultPageTemplate from "@/components/default-page-template"
 import ProductForm from "@/components/forms/product-form"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,16 +15,16 @@ export default async function ProductPage(props: { params: Params }) {
     return notFound()
   }
 
-  const product: IProduct | null = null
+  const product: IProduct | null = slug === 'adicionar-novo' ? null : await getProductBySlugAction(slug)
 
   return (
     <DefaultPageTemplate
-      title={product ? `Atualizar ${product}` : 'Novo Produto'}
+      title={product ? `Atualizar ${product.name}` : 'Novo Produto'}
       enableBackButton
     >
       <Card className="w-full mt-6 max-w-screen-md mx-auto">
         <CardContent>
-          <ProductForm />
+          <ProductForm product={product} />
         </CardContent>
       </Card>
     </DefaultPageTemplate>

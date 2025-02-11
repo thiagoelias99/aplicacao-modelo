@@ -1,11 +1,17 @@
+import { getAllProductsAction } from "@/actions/product"
 import DefaultPageTemplate from "@/components/default-page-template"
+import ProductsTable from "@/components/tables/products-table"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import FabButton from "@/components/ui/fab-button"
 import { PlusIcon } from "lucide-react"
 import Link from "next/link"
 
-export default function ProductsPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function ProductsPage() {
+  const products = await getAllProductsAction()
+
   return (
     <DefaultPageTemplate
       title="Produtos"
@@ -17,7 +23,7 @@ export default function ProductsPage() {
       </Link>
       <Card className="w-full py-6 px-4 pb-8 mt-6 sm:mt-2 sm:py-10 sm:px-6">
         <CardContent className="p-0">
-          {/* <IngredientsTable data={ingredients} /> */}
+          <ProductsTable data={products} />
         </CardContent>
       </Card>
     </DefaultPageTemplate>

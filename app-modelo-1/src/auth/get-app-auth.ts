@@ -56,4 +56,5 @@ export async function checkAuthOrReturnNull() {
   if (!auth.authenticated || !auth.user) {
     return null
   }
+  return true
 }

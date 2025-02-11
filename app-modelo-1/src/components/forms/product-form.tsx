@@ -18,7 +18,9 @@ import { EMeasureUnitClassMapper, EMeasureUnit, EMeasureUnitMapper, Ingredient }
 import { H2 } from "../ui/typography"
 import { PlusIcon, XIcon } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
-import { createProductAction } from "@/actions/product"
+import { createProductAction, updateProductAction } from "@/actions/product"
+import { IProduct, Product } from "@/models/product"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   name: z.string().nonempty(),
@@ -90,22 +92,40 @@ const formSchema = z.object({
 })
 
 interface Props {
+  product: IProduct | null
   onSuccess?: () => void
   onError?: () => void
 }
 
-export default function ProductForm({ onSuccess, onError }: Props) {
+export default function ProductForm({ product, onSuccess, onError }: Props) {
   const [isLoading, setIsLoading] = useState(true)
   const [ingredients, setIngredients] = useState<Ingredient[]>([])
   const [referencePrice, setReferencePrice] = useState<number>(0)
+
+  const productObject = useMemo(() => product ? new Product(product) : null, [product])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ingredients: [{ label: undefined, value: undefined }],
-      profitMargin: 0
+      name: productObject?.name || undefined,
+      description: productObject?.description || undefined,
+      preparationTime: productObject?.preparationTime || undefined,
+      yield: productObject?.yield || undefined,
+      annotation: productObject?.annotation || undefined,
+      recipe: productObject?.recipe || undefined,
+      profitMargin: productObject?.profitMargin || 10,
+      sellingPrice: productObject?.sellingPrice || undefined,
+      ingredients: productObject?.ingredients.map(ingredient => ({
+        label: ingredient.ingredient.name,
+        value: ingredient.ingredient.id,
+        quantity: ingredient.quantity,
+        measureUnit: ingredient.measureUnit
+      })) || [],
     },
   })
+
   const { toast } = useToast()
+  const router = useRouter()
 
   useEffect(() => {
     getAllIngredientsAction()
@@ -161,8 +181,21 @@ export default function ProductForm({ onSuccess, onError }: Props) {
     const filteredIngredients = values.ingredients.filter(ingredient => !!ingredient?.value && !!ingredient?.quantity && !!ingredient?.measureUnit)
 
     try {
-      if (onSuccess) { onSuccess() } else {
-        console.log({ ...values, ingredients: filteredIngredients })
+
+      if (product) {
+        // Update
+        await updateProductAction({
+          ...product,
+          ...values,
+          ingredients: filteredIngredients.map(ingredient => ({
+            id: ingredient.value!,
+            quantity: ingredient.quantity!,
+            measureUnit: ingredient.measureUnit!
+          }))
+        })
+
+      } else {
+        // Create
         await createProductAction({
           ...values,
           ingredients: filteredIngredients.map(ingredient => ({
@@ -172,16 +205,22 @@ export default function ProductForm({ onSuccess, onError }: Props) {
           })),
           slug: ""
         })
+      }
 
+      if (onSuccess) { onSuccess() } else {
         toast({
           title: 'Salvo com sucesso',
         })
+        router.back()
       }
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error
       console.error(error)
+
       if (onError) { onError() } else {
         toast({
           title: 'Erro ao salvar',
+          description: error.message,
           variant: "destructive"
         })
       }
