@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "Aplicação modelo criado por Thiago Elias em Next.js",
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({
   children,
 }: Readonly<{

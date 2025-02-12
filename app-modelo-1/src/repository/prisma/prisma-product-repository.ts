@@ -3,6 +3,7 @@ import { prismaClient } from "./prisma-client"
 import { IProductRepository } from "../product-repository"
 import { Prisma } from "@prisma/client"
 import { PrismaIngredientRepository } from "./prisma-ingredient-repository"
+import { EMeasureUnit } from "@/models/ingredient"
 
 export class PrismaProductRepository implements IProductRepository {
   async createProduct(data: ICreateProduct, id: string): Promise<IProduct> {

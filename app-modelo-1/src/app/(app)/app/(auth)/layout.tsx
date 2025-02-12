@@ -7,6 +7,8 @@ import { ERole } from "@/models/user"
 import { saveUserAction } from "@/actions/user"
 import { getAppAuth } from "@/auth/get-app-auth"
 
+export const dynamic = 'force-dynamic'
+
 export default async function AuthLayout({ children }: PropsWithChildren) {
   const auth = await getAppAuth()
 

@@ -2,7 +2,7 @@
 
 import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
-import { EMeasureUnitMapper, IIngredient, Ingredient } from "@/models/ingredient"
+import { EMeasureUnit, EMeasureUnitMapper, IIngredient, Ingredient } from "@/models/ingredient"
 import { formatCurrency } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "../ui/button"
