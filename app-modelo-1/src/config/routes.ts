@@ -1,4 +1,4 @@
-import { HouseIcon, LucideIcon, ShoppingBasketIcon, ShoppingCartIcon, UsersIcon } from "lucide-react"
+import { DollarSignIcon, HouseIcon, LucideIcon, ShoppingBasketIcon, ShoppingCartIcon, UsersIcon } from "lucide-react"
 
 type Route = {
   slug: string
@@ -30,5 +30,11 @@ export const routes: Route[] = [
     title: "Produtos",
     url: "/app/produtos",
     icon: ShoppingCartIcon
+  },
+  {
+    slug: "precificacao",
+    title: "Precificação",
+    url: "/app/precificacao",
+    icon: DollarSignIcon
   }
 ]

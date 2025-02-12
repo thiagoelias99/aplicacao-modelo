@@ -822,10 +822,21 @@ const ingredientOnProduct = [
   }
 ]
 
+const constants = [
+  { key: "pickUpTax", value: "0" },
+  { key: "privateDeliveryTax", value: "3,5" },
+  { key: "iFoodDeliveryTax", value: "7.2" },
+]
+
 async function seed() {
+  await prismaClient.constant.createMany({ data: constants })
+  console.log("Constants seeded")
   await prismaClient.ingredient.createMany({ data: ingredients })
+  console.log("Ingredients seeded")
   await prismaClient.product.createMany({ data: products })
+  console.log("Products seeded")
   await prismaClient.ingredientOnProduct.createMany({ data: ingredientOnProduct })
+  console.log("Ingredients on Product seeded")
 }
 
 seed()

@@ -77,3 +77,10 @@ model IngredientOnProduct {
   @@id([ingredientId, productId])
   @@map("ingredients_on_products")
 }
+
+model Constant {
+  key   String @id
+  value String
+
+  @@map("constants")
+}
