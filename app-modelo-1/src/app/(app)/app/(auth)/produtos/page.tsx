@@ -17,11 +17,11 @@ export default async function ProductsPage() {
       title="Produtos"
       className="w-full flex flex-col justify-start items-start"
     >
-      <Link href={`/app/produtos/adicionar-novo`} className="self-end">
+      <Link href={`/app/produtos/editor/adicionar-novo`} className="self-end">
         <FabButton className="sm:hidden"><PlusIcon /></FabButton>
         <Button className="hidden sm:block"><PlusIcon /> Adicionar Produto</Button>
       </Link>
-      <Card className="w-full py-6 px-4 pb-8 mt-6 sm:mt-2 sm:py-10 sm:px-6">
+      <Card className="w-full mt-2">
         <CardContent className="p-0">
           <ProductsTable data={products} />
         </CardContent>

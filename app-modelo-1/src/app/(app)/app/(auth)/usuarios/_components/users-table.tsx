@@ -112,7 +112,7 @@ export default function UsersTable({ data, className, ...rest }: Props) {
   }
 
   return (
-    <div className={cn("container mx-auto p-1 mt-4 bg-card rounded-lg", className)} {...rest}>
+    <div className={cn("container mx-auto p-1 bg-card rounded-lg", className)} {...rest}>
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DataTable columns={getColumns(

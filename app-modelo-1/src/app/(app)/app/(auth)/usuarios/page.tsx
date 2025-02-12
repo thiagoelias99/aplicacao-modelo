@@ -4,6 +4,7 @@ import { withRole } from "@/lib/withRole"
 import UnauthorizedPage from "@/components/unauthorized-page"
 import { ERole } from "@/models/user"
 import { getUsersAction } from "@/actions/user"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default async function UsersPage() {
   const auth = await withRole([ERole.ADMIN, ERole.MANAGER, ERole.USER])
@@ -18,7 +19,11 @@ export default async function UsersPage() {
     <DefaultPageTemplate
       title="Usuários"
     >
-      <UsersTable data={users} />
+      <Card className="w-full mt-2">
+        <CardContent>
+          <UsersTable data={users} />
+        </CardContent>
+      </Card>
     </DefaultPageTemplate>
   )
 }

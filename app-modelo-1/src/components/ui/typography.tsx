@@ -41,9 +41,16 @@ export const H4 = ({ children, className }: Props) => {
 
 export const P = ({ children, className }: Props) => {
   return (
-    <p className={cn("text-base leading-tight text-foreground", className)}>
+    <p className={cn("text-base leading-tight text-foreground tracking-wide", className)}>
       {children}
     </p>
+  )
+}
+export const Label = ({ children, className }: Props) => {
+  return (
+    <span className={cn("text-base font-semibold leading-tight text-foreground", className)}>
+      {children}
+    </span>
   )
 }
 

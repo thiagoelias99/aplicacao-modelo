@@ -6,7 +6,7 @@ import { IProduct, Product } from "@/models/product"
 import { useEffect, useState } from "react"
 import { formatCurrency } from "@/lib/utils"
 import { Button, buttonVariants } from "../ui/button"
-import { ArrowUpDown, Edit2Icon } from "lucide-react"
+import { ArrowUpDown, Edit2Icon, EyeIcon } from "lucide-react"
 import Link from "next/link"
 
 interface Props {
@@ -76,6 +76,11 @@ export default function ProductsTable({ data }: Props) {
             <div className="flex justify-center items-center gap-1">
               <Link
                 href={`/app/produtos/${product.slug}`}
+                className={buttonVariants({ variant: "secondary", size: "icon" })}
+              ><EyeIcon />
+              </Link>
+              <Link
+                href={`/app/produtos/editor/${product.slug}`}
                 className={buttonVariants({ variant: "secondary", size: "icon" })}
               ><Edit2Icon /></Link>
             </div>

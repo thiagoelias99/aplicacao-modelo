@@ -19,7 +19,7 @@ export default async function IngredientsPage() {
         <FabButton className="sm:hidden"><PlusIcon /></FabButton>
         <Button className="hidden sm:block"><PlusIcon /> Adicionar Ingrediente</Button>
       </Link>
-      <Card className="w-full py-6 px-4 pb-8 mt-6 sm:mt-2 sm:py-10 sm:px-6">
+      <Card className="w-full mt-2">
         <CardContent className="p-0">
           <IngredientsTable data={ingredients} />
         </CardContent>

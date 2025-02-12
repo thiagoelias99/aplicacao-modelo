@@ -10,10 +10,10 @@ export default async function PricingPage() {
   return (
     <DefaultPageTemplate
       title="Precificação"
-      className="w-full flex flex-col justify-start items-start"
+      className="w-full flex flex-col justify-start items-start max-w-screen-sm mx-auto"
     >
-      <Card className="w-full py-6 px-4 pb-8 mt-6 sm:mt-2 sm:py-10 sm:px-6">
-        <CardContent className="p-0">
+      <Card className="w-full mt-4">
+        <CardContent className="pt-4">
           <CardDescription>Defina aqui a precificação automática dos produtos para diferentes canais de vendas</CardDescription>
           <PricingForm data={data} />
         </CardContent>

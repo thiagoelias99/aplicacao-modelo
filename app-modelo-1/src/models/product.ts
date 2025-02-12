@@ -59,6 +59,12 @@ export class Product {
   createdAt: Date
   updatedAt: Date
 
+  private taxes: {
+    pickUpTax: number
+    privateDeliveryTax: number
+    iFoodDeliveryTax: number
+  }
+
   constructor(data: IProduct) {
     Object.assign(this, data)
     this.createdAt = new Date(data.createdAt)
@@ -70,5 +76,29 @@ export class Product {
       measureUnit: ingredient.measureUnit
     }))
     this.subProducts = data.subProducts.map((product) => new Product(product))
+  }
+
+  setTaxes(data: {
+    pickUpTax: number,
+    privateDeliveryTax: number,
+    iFoodDeliveryTax: number
+  }) {
+    this.taxes = data
+  }
+
+  getSellingPricesWithTaxes(): {
+    pickUpPrice: number
+    privateDeliveryPrice: number
+    iFoodDeliveryPrice: number
+  } {
+    const pickUpPrice = this.sellingPrice * (1 + this.taxes.pickUpTax / 100)
+    const privateDeliveryPrice = this.sellingPrice * (1 + this.taxes.privateDeliveryTax / 100)
+    const iFoodDeliveryPrice = this.sellingPrice * (1 + this.taxes.iFoodDeliveryTax / 100)
+
+    return {
+      pickUpPrice,
+      privateDeliveryPrice,
+      iFoodDeliveryPrice
+    }
   }
 }
