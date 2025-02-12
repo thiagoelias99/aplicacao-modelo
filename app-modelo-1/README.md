@@ -1,4 +1,4 @@
-<h1 align="center">Modelo - Aplicação Web Fullstack Next.js</h1>
+<h1 align="center">Aplicação para precificação dinâmica de produtos (MVP)</h1>
 
 <p align="center">
 <a href="https://nextjs.org/">
@@ -25,32 +25,87 @@
 <a href="https://www.postgresql.org/">
   <img src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=postgresql&logoColor=336791" />
 </a>
+<a href="https://www.docker.com/">
+  <img src="https://img.shields.io/badge/Docker-000000?style=for-the-badge&logo=docker&logoColor=2496ED" />
+</a>
+<a href="https://aws.amazon.com/">
+  <img src="https://img.shields.io/badge/AWS-000000?style=for-the-badge&logo=amazonwebservices&logoColor=FF9900" />
+</a>
 </p>
 
-Aplicação modelo para iniciar projetos com Next.js.
+<p align="center">
+<img src="./docs/screenshots/cover.png" width="720px"/>
+</p>
+
+<h2 align="center">Aplicação MVP desenvolvida para um comércio de marmitas, com o objetivo de substituir uma planilha de cálculo automático de preços dos produtos</h2>
+Autorizado o uso do MVP da aplicação com algumas modificações para portfólio pessoal.
 
 ## Recursos
 
-- Login com email ou social (Kinde Auth)
-- Tema claro / escuro
-- Cadastro de usuários com permissões
-- Tela de Gerenciamento de usuários
-- Tela de Gerenciamento de perfil
-- Exclusão de conta
-- Política de privacidade
-- Notificação de cookies
-- Banco de dados postgress (Prisma ORM)
+### Autenticação e Controle de Acesso
 
-## Instalação
+🔹 Login via e-mail ou Google  
+🔹 Gerenciamento de usuários com permissões de acesso (admin, gerente, colaborador)
 
-- Configurar conta no [Kinde](https://kinde.com/)
-- Configurar variáveis ambiente (_.env_)
-- Instalar projeto `npm install`
-- Rodar migrations `npm run db:push`
-- Rodar aplicação `npm run dev`
+### Telas de Ingredientes
 
-## Deploy Vercel
+🔹 Registro de ingredientes com campos como nome, preço da embalagem, unidade de medida e categoria  
+🔹 Cálculo automático do custo por unidade  
+🔹 Atualização automática de preços ao alterar o valor da embalagem
 
-- Conectar com Git hub
-- Configurar variáveis ambiente
-- Fazer deploy
+### Tela de Produtos
+
+🔹 Registro de produtos com seleção de ingredientes cadastrados para composição de receitas  
+🔹 Cálculo automático do custo total dos ingredientes  
+🔹 Registro de tempo de preparo e rendimento da receita  
+🔹 Área de anotações personalizadas (somente texto)  
+🔹 Precificação em diferentes canais de venda  
+🔹 Configuração da margem de lucro desejada
+🔹 Visualização otimizada para impressão
+
+### Tela de Configuração de Precificação
+
+🔹 Registro de taxas para diferentes canais de venda  
+🔹 Configuração da margem de lucro desejada
+
+### Outros Recursos
+
+🔹 Interface adaptável para desktop e mobile  
+🔹 Modo claro e escuro para melhor usabilidade  
+🔹 Conformidade com LGPD (Lei Geral de Proteção de Dados)  
+🔹 Política de privacidade  
+🔹 Notificação de cookies
+
+### Galeria de Imagens
+
+#### Login e perfil do usuário
+
+<p align="center">
+<img src="./docs/screenshots/usuario.png" width="720px"/>
+</p>
+
+#### Listagem e cadastro de ingredientes
+
+<p align="center">
+<img src="./docs/screenshots/ingredientes.png" width="720px"/>
+</p>
+
+#### Listagem e cadastro de produtos (modo escuro)
+
+<p align="center">
+<img src="./docs/screenshots/produtos.png" width="720px"/>
+</p>
+
+#### Visualização para impressão e precificação
+
+<p align="center">
+<img src="./docs/screenshots/visualizacao.png" width="720px"/>
+</p>
+
+## Instalação com Docker
+
+🔹 Necessário o [Node.js](https://nodejs.org/pt) na versão 18+  
+🔹 Necessário configurar conta no [Kinde Auth](https://kinde.com/)  
+🔹 Renomear o arquivo `.env.docker.example` para `.env.docker` e configurar as variáveis de ambiente  
+🔹 Executar o script automatizado `npm run docker:prod`  
+🔹 Acessar a aplicação no [http://localhost:3000/app/inicio](http://localhost:3000/app/inicio)
